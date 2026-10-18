@@ -1,0 +1,25 @@
+# Secrets : ne jamais publier
+.env
+*.env
+!.env.example
+
+# Environnement virtuel Python et caches
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Données : les PDF et l'index restent en local (seul data/sources.csv est publié)
+data/raw/
+backend/chroma_db/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Éditeur / système
+.vscode/
+.DS_Store
+
+# PDF écartés (scannés ou obsolètes), gardés en local
+data/ecartes/

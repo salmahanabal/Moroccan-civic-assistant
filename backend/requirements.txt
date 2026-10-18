@@ -1,0 +1,18 @@
+# Bibliothèques du projet (liste du PRD, section 4)
+pymupdf
+sentence-transformers
+chromadb
+fastapi
+uvicorn
+pydantic
+python-dotenv
+langdetect
+pandas==2.2.3
+pytest
+slowapi
+
+# Versions fixées : les plus récentes sont bloquées par Smart App Control (Windows 11)
+scikit-learn==1.5.2
+rpds-py==0.30.0
+
+# SDK du fournisseur du LLM : à choisir en Phase 4 (décision en attente)
