@@ -20,6 +20,15 @@ EVAL_DIR = BACKEND_DIR / "evaluation"                    # questions et résulta
 # --- Découpage en chunks (configuration A ; B = 1200 / 200) ---
 CHUNK_SIZE = 800        # taille d'un chunk, en caractères
 CHUNK_OVERLAP = 150     # chevauchement entre deux chunks consécutifs
+MIN_CHUNK_CHARS = 50    # un chunk plus court est ignoré (souvent un titre isolé)
+
+# --- Nettoyage du texte ---
+MIN_PAGES_FOR_HEADER_DETECTION = 5   # en dessous, on ne cherche pas d'en-têtes répétés
+REPEATED_LINE_RATIO = 0.3            # ligne présente sur plus de 30 % des pages = en-tête ou pied de page
+
+# Texte arabe sain, servant de vocabulaire de référence pour réparer les mots abîmés
+# par la police de certains PDF (voir cleaning.repair_arabic_ligatures)
+ARABIC_REFERENCE_FILE = "constitution_2011_ar.pdf"
 
 # --- Embeddings (configuration A ; C = "BAAI/bge-m3") ---
 EMBEDDING_MODEL = "intfloat/multilingual-e5-base"

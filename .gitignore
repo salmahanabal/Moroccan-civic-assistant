@@ -23,3 +23,6 @@ frontend/dist/
 
 # PDF écartés (scannés ou obsolètes), gardés en local
 data/ecartes/
+
+# Textes découpés : copie du contenu des documents officiels, gardée en local
+data/processed/
