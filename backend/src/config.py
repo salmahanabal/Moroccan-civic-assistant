@@ -32,10 +32,14 @@ ARABIC_REFERENCE_FILE = "constitution_2011_ar.pdf"
 
 # --- Embeddings (configuration A ; C = "BAAI/bge-m3") ---
 EMBEDDING_MODEL = "intfloat/multilingual-e5-base"
+EMBEDDING_BATCH_SIZE = 32   # nombre de chunks calculés en même temps (plus petit = moins de mémoire)
 
 # --- Recherche ---
 TOP_K = 5               # nombre de chunks retrouvés par question
-SCORE_THRESHOLD = 0.5   # valeur provisoire : sera calibrée en Phase 3/5
+# Sous ce score, on considère qu'il n'y a pas de réponse dans le corpus.
+# Mesuré en Phase 3 sur 16 questions : hors sujet <= 0,79 ; questions du corpus >= 0,84.
+# Valeur provisoire, à recalibrer à l'évaluation (Phase 5) avec 30 questions.
+SCORE_THRESHOLD = 0.82
 
 # --- Base vectorielle ---
 COLLECTION_NAME = "demarches_maroc"
