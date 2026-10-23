@@ -54,13 +54,24 @@ def add_chunks(collection, chunks: list[dict], embeddings: list[list[float]], ba
         )
 
 
-def search(collection, query_embedding: list[float], top_k: int = config.TOP_K, theme: str | None = None) -> list[dict]:
+def search(
+    collection,
+    query_embedding: list[float],
+    top_k: int = config.TOP_K,
+    theme: str | None = None,
+    language: str | None = None,
+) -> list[dict]:
     """Renvoie les top_k chunks les plus proches, avec leur score de similarité.
 
     Score = 1 - distance : 1 veut dire « identique », 0 « aucun rapport ».
-    Avec theme, la recherche est limitée aux chunks de ce thème (FR-14).
+    Avec theme, la recherche est limitée aux chunks de ce thème (FR-14) ;
+    avec language (« fr » ou « ar »), aux chunks écrits dans cette langue.
     """
-    options = {"where": {"theme": theme}} if theme else {}
+    filters = [{key: value} for key, value in (("theme", theme), ("language", language)) if value]
+    if len(filters) > 1:
+        options = {"where": {"$and": filters}}
+    else:
+        options = {"where": filters[0]} if filters else {}
     result = collection.query(
         query_embeddings=[query_embedding],
         n_results=top_k,

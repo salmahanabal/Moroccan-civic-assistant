@@ -49,6 +49,39 @@ def test_search_can_be_limited_to_a_theme(collection):
     assert [result["file"] for result in results] == ["c.pdf"]
 
 
+def test_search_can_be_limited_to_a_language(collection):
+    results = vectorstore.search(collection, [1.0, 0.0, 0.0], top_k=3, language="ar")
+    assert [result["file"] for result in results] == ["c.pdf"]
+
+
+def test_search_can_combine_theme_and_language_filters(collection):
+    assert [r["file"] for r in vectorstore.search(collection, [0, 0, 1.0], top_k=3, theme="constitution", language="ar")] == ["c.pdf"]
+    assert vectorstore.search(collection, [0, 0, 1.0], top_k=3, theme="constitution", language="fr") == []
+
+
+def test_balanced_retrieval_reserves_slots_for_the_other_language(tmp_path):
+    # 5 chunks français très proches de la question, 3 chunks arabes un peu moins proches
+    chunks, vectors = [], []
+    for number in range(5):
+        chunks.append({"chunk_id": f"fr_{number}", "file": f"fr_{number}.pdf", "page": 1, "theme": "t", "language": "fr", "url": "u", "text": "fr"})
+        vectors.append([1.0, 0.01 * number, 0.0])
+    for number in range(3):
+        chunks.append({"chunk_id": f"ar_{number}", "file": f"ar_{number}.pdf", "page": 1, "theme": "t", "language": "ar", "url": "u", "text": "ar"})
+        vectors.append([0.6, 0.01 * number, 0.8])
+    collection = vectorstore.get_collection(vectorstore.get_client(tmp_path / "chroma"), reset=True)
+    vectorstore.add_chunks(collection, chunks, vectors)
+
+    def ask(slots):
+        return retriever.retrieve("Une question en français ?", top_k=5, collection=collection,
+                                  embed_fn=lambda q: [1.0, 0.0, 0.0], other_language_slots=slots)
+
+    classic = ask(0)
+    assert [r["language"] for r in classic] == ["fr"] * 5  # sans réglage : seulement du français
+    balanced = ask(2)
+    assert sorted(r["language"] for r in balanced) == ["ar", "ar", "fr", "fr", "fr"]
+    assert [r["score"] for r in balanced] == sorted((r["score"] for r in balanced), reverse=True)
+
+
 def test_reset_gives_an_empty_collection(tmp_path):
     client = vectorstore.get_client(tmp_path / "chroma")
     first = vectorstore.get_collection(client, reset=True)
