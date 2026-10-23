@@ -1,0 +1,23 @@
+# Lance le backend dans Docker, comme en ligne.
+#   docker compose up --build
+# puis ouvrir http://localhost:8000/docs
+#
+# Le frontend n'est pas ici : il est hébergé séparément (Vercel ou Netlify).
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:7860" # port 8000 de ton PC -> port 7860 du conteneur
+    # Les secrets (LLM_API_KEY, ALLOWED_ORIGINS) sont lus dans backend/.env au démarrage,
+    # ils ne sont jamais copiés dans l'image.
+    env_file:
+      - ./backend/.env
+    environment:
+      PORT: "7860"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7860/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s # le chargement du modèle prend du temps au démarrage
+      retries: 3
+    restart: unless-stopped

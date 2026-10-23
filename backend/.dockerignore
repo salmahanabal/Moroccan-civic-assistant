@@ -1,0 +1,11 @@
+# Fichiers qui ne doivent PAS entrer dans l'image Docker
+# (les secrets restent hors de l'image : on les donne au démarrage)
+.env
+*.env
+!.env.example
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+evaluation/results*.csv

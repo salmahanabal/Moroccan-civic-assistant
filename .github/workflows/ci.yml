@@ -1,0 +1,84 @@
+# Intégration continue : à chaque envoi de code sur GitHub, des machines de GitHub
+#   1. lancent les tests du backend (pytest),
+#   2. vérifient que l'interface se construit (lint + build),
+#   3. construisent l'image Docker, la démarrent et interrogent /health.
+# Si une étape échoue, une annotation affiche la fin du journal dans l'onglet Actions.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Installer les bibliothèques
+        run: |
+          set -o pipefail
+          pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu 2>&1 | tee /tmp/step.log
+          pip install -r backend/requirements.txt 2>&1 | tee -a /tmp/step.log
+      - name: Lancer les tests
+        working-directory: backend
+        run: |
+          set -o pipefail
+          python -m pytest -q 2>&1 | tee /tmp/step.log
+      - name: Résumé de l'échec
+        if: failure()
+        run: echo "::error title=Échec des tests::$(tail -40 /tmp/step.log | sed ':a;N;$!ba;s/\r//g;s/%/%25/g;s/\n/%0A/g')"
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Installer, analyser et construire
+        run: |
+          set -o pipefail
+          (npm ci && npm run lint && npm run build) 2>&1 | tee /tmp/step.log
+      - name: Résumé de l'échec
+        if: failure()
+        run: echo "::error title=Échec de l'interface::$(tail -40 /tmp/step.log | sed ':a;N;$!ba;s/\r//g;s/%/%25/g;s/\n/%0A/g')"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Construire l'image Docker
+        run: |
+          set -o pipefail
+          docker build -t civic-backend ./backend 2>&1 | tee /tmp/step.log
+      - name: Démarrer le conteneur et interroger /health
+        run: |
+          set -o pipefail
+          # Clé factice : on teste seulement le démarrage (l'index n'est pas dans le dépôt, il est donc vide)
+          docker run -d --name api -p 8000:7860 -e LLM_API_KEY=cle-factice civic-backend
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8000/health; then echo; echo "API prête après $((i*5)) s"; exit 0; fi
+            sleep 5
+          done
+          echo "L'API n'a pas démarré (voir le résumé de l'échec ci-dessous)."
+          exit 1
+      - name: Résumé de l'échec
+        if: failure()
+        run: |
+          docker logs api > /tmp/api.log 2>&1 || true
+          tail -25 /tmp/step.log /tmp/api.log 2>/dev/null > /tmp/summary.log || true
+          echo "::error title=Échec de Docker::$(tail -50 /tmp/summary.log | sed ':a;N;$!ba;s/\r//g;s/%/%25/g;s/\n/%0A/g')"
