@@ -14,5 +14,10 @@ slowapi
 # Versions fixées : les plus récentes sont bloquées par Smart App Control (Windows 11)
 scikit-learn==1.5.2
 rpds-py==0.30.0
+torch==2.7.1   # 2.14 est bloquée par Smart App Control ; transformers exige au moins 2.6
+grpcio==1.66.2  # la dernière version est bloquée par Smart App Control (utilisée par chromadb)
 
-# SDK du fournisseur du LLM : à choisir en Phase 4 (décision en attente)
+httpx   # client de test de FastAPI (utilisé par tests/test_api.py)
+
+# Le LLM (Gemini de Google) est appelé directement avec la bibliothèque standard (urllib) :
+# aucun SDK n'est nécessaire (voir src/generator.py).

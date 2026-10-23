@@ -11,7 +11,7 @@ __pycache__/
 
 # Données : les PDF et l'index restent en local (seul data/sources.csv est publié)
 data/raw/
-backend/chroma_db/
+backend/chroma_db*/
 
 # Frontend
 frontend/node_modules/
