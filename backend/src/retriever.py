@@ -32,6 +32,7 @@ def retrieve(
     collection = collection or vectorstore.get_collection()
     slots = config.OTHER_LANGUAGE_SLOTS if other_language_slots is None else other_language_slots
     vector = embed_fn(question)
+    slots = min(slots, top_k - 1)  # au moins une place reste pour la langue de la question
 
     if slots <= 0:
         return vectorstore.search(collection, vector, top_k=top_k, theme=theme)

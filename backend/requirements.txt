@@ -15,6 +15,8 @@ slowapi
 scikit-learn==1.5.2
 rpds-py==0.30.0
 torch==2.7.1   # 2.14 est bloquée par Smart App Control ; transformers exige au moins 2.6
+# Facultatif, avec une carte graphique NVIDIA : l'index se calcule environ 10 fois plus vite avec
+#   pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu126 --force-reinstall --no-deps
 grpcio==1.66.2  # la dernière version est bloquée par Smart App Control (utilisée par chromadb)
 
 httpx   # client de test de FastAPI (utilisé par tests/test_api.py)

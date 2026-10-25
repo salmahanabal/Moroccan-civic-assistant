@@ -45,22 +45,26 @@ REPEATED_LINE_RATIO = 0.3            # ligne présente sur plus de 30 % des page
 # par la police de certains PDF (voir cleaning.repair_arabic_ligatures)
 ARABIC_REFERENCE_FILE = "constitution_2011_ar.pdf"
 
-# --- Embeddings (configuration A : e5-base ; C : "BAAI/bge-m3") ---
-EMBEDDING_MODEL = os.getenv("RAG_EMBEDDING_MODEL", "intfloat/multilingual-e5-base")
+# --- Embeddings ---
+# Comparaison faite en Phase 5 sur 17 documents (hit rate@5) : e5-base 72 %, bge-m3 84 %.
+# bge-m3 est donc le modèle retenu. (Pour retester e5 : RAG_EMBEDDING_MODEL=intfloat/multilingual-e5-base)
+EMBEDDING_MODEL = os.getenv("RAG_EMBEDDING_MODEL", "BAAI/bge-m3")
 EMBEDDING_BATCH_SIZE = 32   # nombre de chunks calculés en même temps (plus petit = moins de mémoire)
 
 # --- Recherche ---
 TOP_K = 5               # nombre de chunks retrouvés par question
 # Places réservées (sur TOP_K) aux meilleurs chunks de l'AUTRE langue que la question.
 # 0 = recherche classique. Voir retriever.retrieve pour l'explication.
-OTHER_LANGUAGE_SLOTS = int(os.getenv("RAG_OTHER_SLOTS", "0"))
+# Mesuré sur les 35 documents avec bge-m3 (hit rate@5) : 0 place = 76 %, 2 places = 84 %, 3 places = 84 %.
+OTHER_LANGUAGE_SLOTS = int(os.getenv("RAG_OTHER_SLOTS", "2"))
 # Sous ce score, on considère qu'il n'y a pas de réponse dans le corpus.
-# Mesuré en Phase 3 sur 16 questions : hors sujet <= 0,79 ; questions du corpus >= 0,84.
-# Valeur provisoire, à recalibrer à l'évaluation (Phase 5) avec 30 questions.
-SCORE_THRESHOLD = float(os.getenv("RAG_SCORE_THRESHOLD", "0.82"))  # chaque modèle a sa propre échelle de scores
+# Échelle de bge-m3 sur 35 documents : meilleur score des questions du corpus >= 0,60 ;
+# questions hors sujet simples entre 0,37 et 0,50 (une question proche, comme « passeport », monte à 0,58).
+# Le seuil reste volontairement bas (peu de refus à tort) : c'est le LLM qui refuse les cas limites.
+SCORE_THRESHOLD = float(os.getenv("RAG_SCORE_THRESHOLD", "0.50"))  # chaque modèle a sa propre échelle de scores
 
 # --- Base vectorielle ---
-COLLECTION_NAME = "demarches_maroc"
+COLLECTION_NAME = "civic_maroc"
 
 # --- Génération de la réponse (LLM) ---
 LLM_PROVIDER = "gemini"

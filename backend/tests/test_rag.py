@@ -54,7 +54,7 @@ def test_answer_without_citation_keeps_all_extracts_as_sources():
 
 
 def test_low_score_refuses_without_calling_the_llm():
-    weak = [{**CHUNKS[0], "score": 0.50}]
+    weak = [{**CHUNKS[0], "score": 0.30}]  # nettement sous le seuil de config.py
     result = rag.answer_question("Recette de gâteau ?", retrieve_fn=fake_retrieve(weak), generate_fn=never_called)
     assert result["found"] is False
     assert result["sources"] == []

@@ -7,6 +7,7 @@ passage écrit en français (et inversement).
 
 from functools import lru_cache
 
+import torch
 from sentence_transformers import SentenceTransformer
 
 from src import config
@@ -26,7 +27,15 @@ def get_prefix(kind: str, model_name: str = config.EMBEDDING_MODEL) -> str:
 
 @lru_cache(maxsize=1)
 def get_model(model_name: str = config.EMBEDDING_MODEL) -> SentenceTransformer:
-    """Charge le modèle une seule fois (le chargement est lent : plusieurs secondes)."""
+    """Charge le modèle une seule fois (le chargement est lent : plusieurs secondes).
+
+    S'il y a une carte graphique NVIDIA utilisable, le calcul est environ dix fois plus rapide.
+    On y charge alors le modèle en « demi-précision » (float16) : il occupe deux fois moins de
+    mémoire graphique (indispensable avec 4 Go) pour une qualité pratiquement identique.
+    Sans carte graphique (Docker, hébergeur gratuit), tout se passe comme avant, sur le processeur.
+    """
+    if torch.cuda.is_available():
+        return SentenceTransformer(model_name, device="cuda", model_kwargs={"torch_dtype": torch.float16})
     return SentenceTransformer(model_name)
 
 

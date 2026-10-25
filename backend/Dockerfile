@@ -28,7 +28,7 @@ USER user
 
 # 3) On télécharge le modèle d'embeddings PENDANT la construction de l'image,
 #    pour que le démarrage de l'API ne dépende pas d'un téléchargement.
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('intfloat/multilingual-e5-base')"
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3')"
 
 # 4) Le code et l'index ChromaDB (construit en local avec « python -m src.build_index »,
 #    jamais publié sur GitHub). Le fichier .env est exclu par .dockerignore.
