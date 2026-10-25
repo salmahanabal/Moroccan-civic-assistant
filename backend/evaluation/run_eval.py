@@ -35,6 +35,16 @@ def read_csv(path) -> list[dict]:
         return list(csv.DictReader(file))
 
 
+def is_hit(expected: str, top5_files: list[str]) -> bool:
+    """Le ou les documents attendus sont-ils dans les 5 chunks retrouvés ?
+
+    « ; » sépare les documents qui doivent TOUS apparaître (question à deux textes) ;
+    « | » sépare des équivalents dont UN SEUL suffit (même loi en français et en arabe).
+    """
+    groups = [group.split("|") for group in expected.split(";") if group]
+    return bool(groups) and all(any(name in top5_files for name in group) for group in groups)
+
+
 def no_llm_generate(system_prompt: str, user_prompt: str) -> str:
     """Faux LLM pour tester la recherche seule : ne consomme aucun quota."""
     return "(réponse non générée : mode --no-llm)"
@@ -63,7 +73,6 @@ def evaluate_question(question: dict, label: str, pause: float, use_llm: bool = 
         time.sleep(pause)
 
     top5 = [chunk["file"] for chunk in retrieved.get("chunks", [])]
-    expected_files = [name for name in question["fichier_attendu"].split(";") if name]
     is_out_of_corpus = question["type"] == "hors_corpus"
 
     row = {column: "" for column in COLUMNS}
@@ -81,9 +90,9 @@ def evaluate_question(question: dict, label: str, pause: float, use_llm: bool = 
         if is_out_of_corpus and use_llm:
             # Sans LLM, personne ne peut refuser : cette mesure n'aurait aucun sens
             row["refus_correct"] = 1 if not result["found"] else 0
-    if not is_out_of_corpus and expected_files:
+    if not is_out_of_corpus and question["fichier_attendu"]:
         # hit rate@5 : le fichier attendu apparaît-il parmi les 5 chunks retrouvés ?
-        row["hit_at_5"] = 1 if all(name in top5 for name in expected_files) else 0
+        row["hit_at_5"] = 1 if is_hit(question["fichier_attendu"], top5) else 0
     return row
 
 
