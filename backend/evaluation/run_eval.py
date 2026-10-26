@@ -16,7 +16,7 @@ import statistics
 import sys
 import time
 
-from src import config, generator, rag, retriever
+from src import config, generator, query_rewriter, rag, retriever
 
 QUESTIONS_FILE = config.EVAL_DIR / "questions.csv"
 RESULTS_FILE = config.EVAL_DIR / f"results{config.FILE_SUFFIX}.csv"  # results.csv, results_B.csv...
@@ -54,9 +54,9 @@ def evaluate_question(question: dict, label: str, pause: float, use_llm: bool = 
     """Pose une question au système et mesure le résultat."""
     retrieved: dict[str, list[dict]] = {}
 
-    def spy_retrieve(text, theme=None):
+    def spy_retrieve(text, theme=None, sub_queries=None):
         """Même recherche que d'habitude, mais on garde les 5 chunks pour le hit rate."""
-        retrieved["chunks"] = retriever.retrieve(text, theme=theme)
+        retrieved["chunks"] = retriever.retrieve(text, theme=theme, sub_queries=sub_queries)
         return retrieved["chunks"]
 
     generate_fn = generator.generate_answer if use_llm else no_llm_generate
@@ -69,8 +69,8 @@ def evaluate_question(question: dict, label: str, pause: float, use_llm: bool = 
         except generator.LLMUnavailableError as exc:
             error = str(exc)
             time.sleep(30 * (attempt + 1))
-    if use_llm:
-        time.sleep(pause)
+    if use_llm or (config.QUERY_REWRITING and query_rewriter.needs_rewrite(question["question"])):
+        time.sleep(pause)  # même sans réponse générée, le découpage de la question appelle le LLM
 
     top5 = [chunk["file"] for chunk in retrieved.get("chunks", [])]
     is_out_of_corpus = question["type"] == "hors_corpus"

@@ -8,7 +8,7 @@ import re
 import time
 from collections.abc import Callable
 
-from src import config, generator, guards, prompts, retriever
+from src import config, generator, guards, prompts, query_rewriter, retriever
 from src.language import detect_language
 
 CITATION = re.compile(r"\[(\d+)\]")
@@ -54,10 +54,11 @@ def answer_question(
     theme: str | None = None,
     retrieve_fn: Callable[..., list[dict]] = retriever.retrieve,
     generate_fn: Callable[[str, str], str] = generator.generate_answer,
+    rewrite_fn: Callable[[str], list[str]] = query_rewriter.rewrite_query,
 ) -> dict:
     """Répond à une question avec ses sources.
 
-    retrieve_fn et generate_fn peuvent être remplacées dans les tests, pour
+    retrieve_fn, generate_fn et rewrite_fn peuvent être remplacées dans les tests, pour
     ne pas avoir besoin du vrai modèle d'embeddings ni du vrai LLM.
     """
     started = time.time()
@@ -69,7 +70,13 @@ def answer_question(
     if guards.is_unsupported_language(question):
         return refusal("unsupported_language", language, time.time() - started)
 
-    chunks = retrieve_fn(question, theme=theme)
+    # Question à plusieurs volets : on la découpe en questions simples pour que chaque volet
+    # retrouve ses propres passages (si le découpage échoue, la recherche reste classique)
+    sub_queries = rewrite_fn(question) if config.QUERY_REWRITING else []
+    if sub_queries:
+        chunks = retrieve_fn(question, theme=theme, sub_queries=sub_queries)
+    else:
+        chunks = retrieve_fn(question, theme=theme)
     if not retriever.has_answer(chunks):
         # Aucun passage assez proche : on ne dérange même pas le LLM (FR-7)
         return refusal("no_answer", language, time.time() - started)

@@ -10,6 +10,7 @@ et aucune dépendance en plus.
 """
 
 import json
+import time
 import urllib.error
 import urllib.request
 
@@ -29,7 +30,7 @@ class _TryNextModel(Exception):
     """Échec temporaire d'un modèle (quota du jour épuisé, surcharge, délai dépassé) : on essaie le suivant."""
 
 
-def _post_gemini(model: str, system_prompt: str, user_prompt: str) -> str:
+def _post_gemini(model: str, system_prompt: str, user_prompt: str, timeout: float | None = None) -> str:
     """Envoie la question à UN modèle Gemini et renvoie le texte de sa réponse."""
     body = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
@@ -46,7 +47,7 @@ def _post_gemini(model: str, system_prompt: str, user_prompt: str) -> str:
         headers={"Content-Type": "application/json", "x-goog-api-key": config.LLM_API_KEY},
     )
     try:
-        with urllib.request.urlopen(request, timeout=config.LLM_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(request, timeout=timeout or config.LLM_TIMEOUT_SECONDS) as response:
             data = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as error:
         # 429 = quota épuisé ; 5xx = panne de Google ; 400 = paramètre refusé par CE modèle
@@ -86,3 +87,25 @@ PROVIDERS = {"gemini": _call_gemini}
 def generate_answer(system_prompt: str, user_prompt: str) -> str:
     """Génère la réponse avec le fournisseur choisi dans config.LLM_PROVIDER."""
     return PROVIDERS[config.LLM_PROVIDER](system_prompt, user_prompt)
+
+
+def generate_quick(system_prompt: str, user_prompt: str) -> str:
+    """Appel court pour une tâche annexe (découper une question) : abandonne vite si Gemini est lent.
+
+    La réponse finale reste prioritaire : mieux vaut renoncer au découpage que doubler l'attente.
+    Le temps total est borné par config.QUICK_CALL_BUDGET_SECONDS, tous modèles confondus.
+    """
+    if not config.LLM_API_KEY:
+        raise LLMUnavailableError("Aucune clé d'API : remplissez LLM_API_KEY dans backend/.env")
+
+    deadline = time.monotonic() + config.QUICK_CALL_BUDGET_SECONDS
+    failures = []
+    for model in config.LLM_MODELS:
+        remaining = deadline - time.monotonic()
+        if remaining < 1:
+            break
+        try:
+            return _post_gemini(model, system_prompt, user_prompt, timeout=remaining)
+        except _TryNextModel as failure:
+            failures.append(str(failure))
+    raise LLMUnavailableError("Appel court sans réponse à temps : " + " ; ".join(failures))

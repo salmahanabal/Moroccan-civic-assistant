@@ -14,7 +14,7 @@ def fake_urlopen(outcomes):
     calls = []
 
     def urlopen(request, timeout=None):
-        calls.append({"url": request.full_url, "headers": dict(request.header_items()), "body": json.loads(request.data)})
+        calls.append({"url": request.full_url, "headers": dict(request.header_items()), "body": json.loads(request.data), "timeout": timeout})
         outcome = outcomes.pop(0)
         if isinstance(outcome, Exception):
             raise outcome
@@ -99,6 +99,21 @@ def test_thinking_parts_are_ignored(monkeypatch):
     data = {"candidates": [{"content": {"parts": [{"text": "réflexion interne", "thought": True}, {"text": "Réponse finale"}]}}]}
     use(monkeypatch, [data])
     assert generator.generate_answer("système", "question") == "Réponse finale"
+
+
+def test_quick_call_uses_a_short_timeout_and_falls_back(monkeypatch):
+    monkeypatch.setattr(generator.config, "QUICK_CALL_BUDGET_SECONDS", 8)
+    urlopen = use(monkeypatch, [TimeoutError("trop lent"), reply("sous-question")])
+    assert generator.generate_quick("système", "question") == "sous-question"
+    assert all(call["timeout"] <= 8 for call in urlopen.calls)  # jamais le délai de 20 s d'une vraie réponse
+
+
+def test_quick_call_gives_up_when_its_time_budget_is_spent(monkeypatch):
+    monkeypatch.setattr(generator.config, "QUICK_CALL_BUDGET_SECONDS", 0)
+    urlopen = use(monkeypatch, [reply("ne doit pas être appelé")])
+    with pytest.raises(generator.LLMUnavailableError):
+        generator.generate_quick("système", "question")
+    assert urlopen.calls == []
 
 
 def test_missing_api_key_raises_an_error(monkeypatch):

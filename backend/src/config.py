@@ -57,6 +57,9 @@ TOP_K = 5               # nombre de chunks retrouvés par question
 # 0 = recherche classique. Voir retriever.retrieve pour l'explication.
 # Mesuré sur les 35 documents avec bge-m3 (hit rate@5) : 0 place = 76 %, 2 places = 84 %, 3 places = 84 %.
 OTHER_LANGUAGE_SLOTS = int(os.getenv("RAG_OTHER_SLOTS", "2"))
+# Découpe les questions à plusieurs volets en questions simples avant la recherche
+# (1 appel de plus au LLM, seulement pour ces questions). RAG_REWRITE=0 pour comparer sans.
+QUERY_REWRITING = os.getenv("RAG_REWRITE", "1") == "1"
 # Sous ce score, on considère qu'il n'y a pas de réponse dans le corpus.
 # Échelle de bge-m3 sur 35 documents : meilleur score des questions du corpus >= 0,60 ;
 # questions hors sujet simples entre 0,37 et 0,50 (une question proche, comme « passeport », monte à 0,58).
@@ -76,6 +79,7 @@ LLM_THINKING_LEVEL = "low"       # le modèle « réfléchit » peu : plus rapid
 # une valeur trop basse coupe la réponse en plein milieu d'une phrase.
 MAX_TOKENS = 1500
 LLM_TIMEOUT_SECONDS = 20         # au-delà, on abandonne ce modèle et on passe au suivant
+QUICK_CALL_BUDGET_SECONDS = 8    # temps total accordé au découpage d'une question, avant d'y renoncer
 MAX_QUESTION_LENGTH = 500
 EXCERPT_CHARS = 200              # longueur de l'extrait de chaque source renvoyé à l'utilisateur
 

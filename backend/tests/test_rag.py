@@ -90,6 +90,33 @@ def test_llm_error_is_not_hidden():
         rag.answer_question("Question ?", retrieve_fn=fake_retrieve(CHUNKS), generate_fn=broken)
 
 
+def test_multi_part_question_is_searched_with_its_sub_questions():
+    received = {}
+
+    def fake_retrieve(question, theme=None, sub_queries=None):
+        received["sub_queries"] = sub_queries
+        return CHUNKS
+
+    result = rag.answer_question(
+        "Que faut-il pour voter et comment s'inscrire ?",
+        retrieve_fn=fake_retrieve,
+        generate_fn=lambda system, user: "Il faut être majeur [1].",
+        rewrite_fn=lambda question: ["Que faut-il pour voter ?", "Comment s'inscrire ?"],
+    )
+    assert result["found"] is True
+    assert received["sub_queries"] == ["Que faut-il pour voter ?", "Comment s'inscrire ?"]
+
+
+def test_question_without_sub_questions_keeps_the_classic_search_call():
+    result = rag.answer_question(
+        "Qui peut voter ?",
+        retrieve_fn=fake_retrieve(CHUNKS),  # n'accepte pas sub_queries : ne doit pas en recevoir
+        generate_fn=lambda system, user: "Les citoyens majeurs [1].",
+        rewrite_fn=lambda question: [],
+    )
+    assert result["found"] is True
+
+
 def test_user_prompt_contains_numbered_extracts_and_language():
     prompt = prompts.build_user_prompt("Question ?", "ar", CHUNKS)
     assert "Langue de la question : arabe" in prompt
