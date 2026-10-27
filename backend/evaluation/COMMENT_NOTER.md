@@ -1,6 +1,17 @@
 # Comment noter les réponses (à faire par toi)
 
-Ouvre `results.csv` dans Excel ou LibreOffice (l'arabe s'affiche bien). Pour chaque ligne, lis :
+## Méthode simple : la page NOTATION.html
+
+1. Depuis le dossier `backend`, fabrique la page : `python -m evaluation.make_scoring_page`
+2. Ouvre `backend/evaluation/NOTATION.html` (double-clic : elle s'ouvre dans ton navigateur).
+3. Pour chaque question, clique sur tes deux notes (les barèmes sont rappelés ci-dessous). Tout est enregistré automatiquement.
+4. À la fin, clique sur « Télécharger mes notes » : tu obtiens `mes_notes.csv`. Mets-le dans `backend/evaluation`.
+5. Recopie tes notes dans `results.csv` : `python -m evaluation.merge_notes` (le script ne choisit aucune note, il recopie les tiennes).
+6. Calcule les chiffres : `python -m evaluation.run_eval --summary`.
+
+## Méthode manuelle : le fichier CSV
+
+Ouvre `results.csv` dans Excel ou LibreOffice (l'arabe s'affiche bien ; dans VS Code le fichier est illisible). Pour chaque ligne, lis :
 `question`, `reponse_attendue` (ce que j'ai écrit à partir d'un vrai passage), `reponse_systeme` (ce que l'assistant a répondu) et `sources_citees`.
 
 Remplis ensuite **deux colonnes** (les autres sont déjà calculées automatiquement) :
