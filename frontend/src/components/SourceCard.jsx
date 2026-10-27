@@ -1,5 +1,12 @@
 // Une source dépliable : fichier, page, extrait et lien d'origine (exigence FR-9).
+// La phrase qui répond à la question est surlignée (positions envoyées par l'API).
 export default function SourceCard({ source, labels }) {
+  // Array.from compte les caractères comme Python (et non les unités UTF-16)
+  const characters = Array.from(source.excerpt)
+  const start = source.highlight_start
+  const end = source.highlight_end
+  const hasHighlight = Number.isInteger(start) && Number.isInteger(end) && end > start
+
   return (
     <details className="group rounded-lg border border-stone-200 bg-stone-50 text-sm">
       <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-stone-700 hover:bg-stone-100">
@@ -17,7 +24,18 @@ export default function SourceCard({ source, labels }) {
         </span>
       </summary>
       <div className="space-y-2 border-t border-stone-200 px-3 py-2">
-        <p className="text-stone-600">{source.excerpt}…</p>
+        <p className="text-stone-600">
+          {hasHighlight ? (
+            <>
+              {characters.slice(0, start).join('')}
+              <mark className="rounded bg-yellow-200 px-0.5 text-stone-900">{characters.slice(start, end).join('')}</mark>
+              {characters.slice(end).join('')}
+            </>
+          ) : (
+            source.excerpt
+          )}
+          …
+        </p>
         <a
           href={source.url}
           target="_blank"

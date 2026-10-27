@@ -84,7 +84,7 @@ LLM_TIMEOUT_SECONDS = 20         # au-delà, on abandonne ce modèle et on passe
 JUDGE_MODELS = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]
 QUICK_CALL_BUDGET_SECONDS = 8    # temps total accordé au découpage d'une question, avant d'y renoncer
 MAX_QUESTION_LENGTH = 500
-EXCERPT_CHARS = 200              # longueur de l'extrait de chaque source renvoyé à l'utilisateur
+EXCERPT_CHARS = 300              # longueur maximale de l'extrait de chaque source renvoyé à l'utilisateur
 
 # --- API ---
 RATE_LIMIT = "10/minute"         # par adresse IP : protège le quota gratuit contre les abus

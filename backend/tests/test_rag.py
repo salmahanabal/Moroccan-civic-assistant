@@ -6,7 +6,7 @@ consomment ni le quota de la clé d'API ni le vrai modèle d'embeddings.
 
 import pytest
 
-from src import generator, prompts, rag
+from src import config, generator, prompts, rag
 
 CHUNKS = [
     {"text": "Sont électeurs les citoyens majeurs. " * 20, "file": "loi_57_11.pdf", "page": 4, "url": "https://exemple.ma/a", "score": 0.90},
@@ -40,7 +40,22 @@ def test_answer_with_sources_keeps_only_cited_extracts():
     assert [source["id"] for source in result["sources"]] == [1, 3]
     assert result["sources"][0]["file"] == "loi_57_11.pdf"
     assert result["sources"][0]["page"] == 4
-    assert len(result["sources"][0]["excerpt"]) == 200  # extrait coupé à 200 caractères
+    assert len(result["sources"][0]["excerpt"]) == config.EXCERPT_CHARS  # extrait coupé à la longueur maximale
+
+
+def test_sources_show_and_highlight_the_sentence_that_answers():
+    chunks = [{
+        "text": "Le Roi dispose d'une liste civile. Le Roi nomme le Chef du Gouvernement au sein du parti arrivé en tête.",
+        "file": "constitution.pdf", "page": 13, "url": "https://exemple.ma/c", "score": 0.9,
+    }]
+    result = rag.answer_question(
+        "Qui choisit le chef du gouvernement ?",
+        retrieve_fn=fake_retrieve(chunks),
+        generate_fn=lambda system, user: "Le Roi nomme le Chef du Gouvernement [1].",
+    )
+    source = result["sources"][0]
+    assert source["excerpt"].startswith("Le Roi nomme le Chef du Gouvernement")
+    assert source["excerpt"][source["highlight_start"] : source["highlight_end"]].endswith("arrivé en tête.")
 
 
 def test_answer_without_citation_keeps_all_extracts_as_sources():

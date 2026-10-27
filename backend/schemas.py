@@ -35,6 +35,9 @@ class Source(BaseModel):
     file: str
     page: int
     excerpt: str
+    # Position (dans excerpt) de la phrase qui répond le mieux, à surligner ; None si aucune ne se détache
+    highlight_start: int | None = None
+    highlight_end: int | None = None
     url: str
     score: float
 

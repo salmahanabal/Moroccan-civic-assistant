@@ -8,18 +8,20 @@ import re
 import time
 from collections.abc import Callable
 
-from src import config, generator, guards, prompts, query_rewriter, retriever
+from src import config, excerpt, generator, guards, prompts, query_rewriter, retriever
 from src.language import detect_language
 
 CITATION = re.compile(r"\[(\d+)\]")
 
 
-def build_sources(chunks: list[dict], answer: str) -> list[dict]:
+def build_sources(chunks: list[dict], answer: str, question: str = "") -> list[dict]:
     """Prépare la liste des sources à renvoyer : fichier, page, extrait, lien, score.
 
     On ne garde que les extraits que le modèle a cités ([1], [3]...). S'il n'en
     a cité aucun, on garde tous les extraits fournis : une réponse a toujours
     au moins une source (mesure de succès du PRD).
+    L'extrait est la phrase du passage qui répond le mieux (voir src/excerpt.py),
+    avec sa position pour que l'interface la surligne.
     """
     cited = {int(number) for number in CITATION.findall(answer)}
     selected = [
@@ -30,7 +32,7 @@ def build_sources(chunks: list[dict], answer: str) -> list[dict]:
             "id": number,
             "file": chunk["file"],
             "page": chunk["page"],
-            "excerpt": chunk["text"][: config.EXCERPT_CHARS],
+            **excerpt.best_excerpt(chunk["text"], answer, question),
             "url": chunk["url"],
             "score": round(chunk["score"], 3),
         }
@@ -92,6 +94,6 @@ def answer_question(
         "answer": raw_answer,
         "language": language,
         "found": True,
-        "sources": build_sources(chunks, raw_answer),
+        "sources": build_sources(chunks, raw_answer, question),
         "duration_seconds": round(time.time() - started, 2),
     }
