@@ -1,0 +1,6 @@
+# Outils pour l'analyse exploratoire (notebook), pas nécessaires pour faire tourner l'application
+# Installation : pip install -r requirements-dev.txt
+matplotlib      # graphiques
+ipykernel       # permet d'exécuter le notebook dans VS Code
+nbformat        # écrire / lire un fichier .ipynb
+nbclient        # exécuter le notebook en ligne de commande
