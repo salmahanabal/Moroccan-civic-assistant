@@ -79,6 +79,9 @@ LLM_THINKING_LEVEL = "low"       # le modèle « réfléchit » peu : plus rapid
 # une valeur trop basse coupe la réponse en plein milieu d'une phrase.
 MAX_TOKENS = 1500
 LLM_TIMEOUT_SECONDS = 20         # au-delà, on abandonne ce modèle et on passe au suivant
+# Modèles du « LLM juge » (evaluation/llm_judge.py) : on met en premier le plus puissant, différent du
+# modèle léger qui répond le plus souvent, pour limiter le biais d'un modèle qui note ses propres réponses.
+JUDGE_MODELS = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]
 QUICK_CALL_BUDGET_SECONDS = 8    # temps total accordé au découpage d'une question, avant d'y renoncer
 MAX_QUESTION_LENGTH = 500
 EXCERPT_CHARS = 200              # longueur de l'extrait de chaque source renvoyé à l'utilisateur

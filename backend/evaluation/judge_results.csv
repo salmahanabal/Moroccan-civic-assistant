@@ -1,0 +1,31 @@
+﻿id,type,judge_exactitude,judge_fidelite,judge_model,judge_raison
+1,simple,2,1,gemini-3.6-flash,La réponse décrit correctement le drapeau marocain conformément à la réponse attendue et au passage cité.
+2,simple,2,1,gemini-3.6-flash,"La réponse indique le nombre total exact de membres (395), ce qui est l'information essentielle demandée, et s'appuie directement sur les passages cités."
+3,simple,2,1,gemini-3.6-flash,"La réponse indique correctement que les députés sont élus pour cinq ans, ce qui est étayé par les textes cités."
+4,simple,2,1,gemini-3.6-flash,"La réponse est exacte, complète et parfaitement fidèle aux passages cités."
+5,simple,2,1,gemini-3.6-flash,"La réponse identifie correctement l'arabe et l'amazighe comme langues officielles, en conformité avec la réponse attendue et les passages cités."
+6,simple,2,1,gemini-3.6-flash,"La réponse est exacte, complète et strictement fidèle aux passages cités."
+7,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les textes cités."
+8,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fondée sur les passages cités."
+9,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fondée sur les passages cités."
+10,simple,2,1,gemini-3.6-flash,"La réponse est exacte, complète et totalement fidèle aux passages cités."
+11,simple,2,1,gemini-3.6-flash,La réponse identifie correctement le Chef du Gouvernement et les membres du Parlement conformément aux passages cités.
+12,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement basée sur les passages cités.
+13,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+14,simple,2,1,gemini-3.6-flash,"La réponse est exacte, complète et conforme aux passages cités."
+15,simple,2,1,gemini-3.6-flash,La réponse indique précisément le délai de six mois requis et est parfaitement fidèle aux passages cités.
+16,combinee,2,1,gemini-3.6-flash,"La réponse est exacte et fidèle aux passages cités, répondant correctement aux critères pour voter et aux démarches d'inscription."
+17,combinee,2,1,gemini-3.6-flash,"La réponse de l'assistant est exacte, complète et strictement fidèle aux passages cités."
+18,combinee,2,1,gemini-3.6-flash,"La réponse est exacte, complète et strictement fidèle aux passages cités."
+19,combinee,2,1,gemini-3.6-flash,"La réponse est correcte et fidèle aux passages cités, décrivant qui peut présenter une pétition et aux autorités auxquelles elle s'adresse."
+20,combinee,2,1,gemini-3.6-flash,"La réponse est exacte, complète et s'appuie fidèlement sur les passages cités."
+21,arabe,1,1,gemini-3.6-flash,La réponse indique le nombre total de membres (395) mais omit la répartition détaillée (305 locaux et 90 جهوية) mentionnée dans la réponse attendue.
+22,arabe,2,1,gemini-3.6-flash,"La réponse identifie correctement l'arabe et l'amazighe comme langues officielles, conformément à la réponse attendue et aux passages cités."
+23,arabe,2,1,gemini-3.5-flash-lite,La réponse est correcte et entièrement justifiée par les textes cités.
+24,arabe,2,1,gemini-3.5-flash-lite,الرؤية دقيقة وكاملة ومطابقة تماما للنصوص المستشهد بها.
+25,arabe,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle oublie de mentionner la loi organique prévue par la constitution, mais elle est fidèle aux textes."
+26,hors_corpus,,1,gemini-3.6-flash,L'assistant a correctement refusé de donner une opinion politique.
+27,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+28,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+29,hors_corpus,,1,gemini-3.6-flash,L'assistant a correctement refusé de répondre à une question hors corpus.
+30,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.

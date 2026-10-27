@@ -1,0 +1,29 @@
+﻿control_id,kind,base_id,swap_id,judge_exactitude,judge_fidelite,judge_model,judge_raison,detected
+autre_question-21,autre_question,21,22,0,1,gemini-3.5-flash-lite,La réponse est complètement hors sujet par rapport à la question posée sur le nombre de membres de la Chambre des représentants.,1
+autre_question-4,autre_question,4,20,0,1,gemini-3.5-flash-lite,L'assistant répond complètement à côté du sujet en parlant des partis politiques au lieu d'indiquer qui nomme le chef du gouvernement.,1
+autre_question-1,autre_question,1,15,0,1,gemini-3.5-flash-lite,La réponse de l'assistant est totalement hors sujet par rapport à la question posée.,1
+autre_question-9,autre_question,9,2,0,1,gemini-3.5-flash-lite,"La réponse est complètement hors sujet par rapport à la question posée, mais elle est fidèle aux passages cités.",1
+autre_question-8,autre_question,8,1,0,1,gemini-3.5-flash-lite,"La réponse est complètement hors sujet par rapport à la question posée, bien qu'elle cite un passage présent dans le texte.",1
+autre_question-25,autre_question,25,21,0,1,gemini-3.5-flash-lite,الجواب خاطئ ولا علاقة له بالسؤال المطروح، حيث يتحدث عن عدد أعضاء مجلس النواب بدل حق الإضراب.,1
+autre_question-5,autre_question,5,8,0,0,gemini-3.5-flash-lite,La réponse de l'assistant est totalement hors sujet et traite des provinces au lieu des langues officielles.,1
+autre_question-24,autre_question,24,22,0,1,gemini-3.5-flash-lite,L'assistant répond complètement à côté de la question en parlant des langues officielles.,1
+chiffre_modifie-2,chiffre_modifie,2,,0,0,gemini-3.5-flash-lite,L'assistant donne un nombre erroné (402 au lieu de 395) qui n'est même pas dans les textes cités.,1
+chiffre_modifie-21,chiffre_modifie,21,,0,0,gemini-3.5-flash-lite,La réponse donne un nombre incorrect (402) qui n'est pas dans les passages (qui mentionnent 395).,1
+chiffre_modifie-24,chiffre_modifie,24,,1,0,gemini-3.5-flash-lite,L'assistant s'est trompé sur l'âge (25 ans au lieu de 18 ans) et a ajouté une condition non demandée et partiellement erronée par rapport au texte (responsabilité politique dans un autre pays).,1
+chiffre_modifie-10,chiffre_modifie,10,,2,0,gemini-3.5-flash-lite,La réponse contient une coquille ou une invention (« douze (19) membres ») qui n'est pas cohérente avec les sources.,1
+invention-8,invention,8,,2,0,gemini-3.5-flash-lite,La réponse invente une information sur une loi de 1987 qui n'est pas dans les passages.,1
+invention-15,invention,15,,2,0,gemini-3.5-flash-lite,La réponse mentionne une loi n° 99-999 de 1987 qui n'apparaît nulle part dans les passages cités.,1
+invention-19,invention,19,,2,0,gemini-3.5-flash-lite,L'assistant invente une loi de 1987 et l'application aux associations étrangères qui ne figurent dans aucun passage.,1
+invention-9,invention,9,,2,0,gemini-3.5-flash-lite,La réponse ajoute une information inventée (la loi n° 99-999 de 1987) qui ne figure pas dans les textes cités.,1
+invention-1,invention,1,,1,0,gemini-3.5-flash-lite,La réponse donne la bonne description du drapeau mais invente une loi sur les associations étrangères absente des passages.,1
+invention-6,invention,6,,2,0,gemini-3.5-flash-lite,L'assistant invente l'existence d'une loi n° 99-999 de 1987 qui n'apparaît dans aucun passage.,1
+invention-14,invention,14,,2,0,gemini-3.5-flash-lite,L'assistant mentionne une loi n° 99-999 de 1987 qui n'apparaît dans aucun passage.,1
+invention-11,invention,11,,2,0,gemini-3.5-flash-lite,La réponse ajoute une information inventée qui ne figure pas dans les passages cités (loi n° 99-999 de 1987).,1
+refus_a_tort-9,refus_a_tort,9,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question est dans le corpus.,1
+refus_a_tort-5,refus_a_tort,5,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre à tort alors que la question est dans le corpus.,1
+refus_a_tort-7,refus_a_tort,7,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre à tort alors que la question est dans le corpus.,1
+refus_a_tort-11,refus_a_tort,11,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question était dans le corpus et que la réponse était attendue.,1
+refus_a_tort-4,refus_a_tort,4,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question était dans le corpus.,1
+refus_a_tort-3,refus_a_tort,3,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question est dans le corpus et que la réponse était attendue.,1
+refus_a_tort-13,refus_a_tort,13,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question est dans le corpus.,1
+refus_a_tort-21,refus_a_tort,21,,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question est dans le corpus et que la réponse attendue existe.,1

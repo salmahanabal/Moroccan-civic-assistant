@@ -30,7 +30,9 @@ class _TryNextModel(Exception):
     """Échec temporaire d'un modèle (quota du jour épuisé, surcharge, délai dépassé) : on essaie le suivant."""
 
 
-def _post_gemini(model: str, system_prompt: str, user_prompt: str, timeout: float | None = None) -> str:
+def _post_gemini(
+    model: str, system_prompt: str, user_prompt: str, timeout: float | None = None, temperature: float | None = None
+) -> str:
     """Envoie la question à UN modèle Gemini et renvoie le texte de sa réponse."""
     body = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
@@ -40,6 +42,8 @@ def _post_gemini(model: str, system_prompt: str, user_prompt: str, timeout: floa
             "thinkingConfig": {"thinkingLevel": config.LLM_THINKING_LEVEL},
         },
     }
+    if temperature is not None:  # 0 = réponses les plus stables possible (utile pour un juge)
+        body["generationConfig"]["temperature"] = temperature
     request = urllib.request.Request(
         GEMINI_URL.format(model=model),
         data=json.dumps(body).encode("utf-8"),
@@ -66,18 +70,23 @@ def _post_gemini(model: str, system_prompt: str, user_prompt: str, timeout: floa
     return text
 
 
-def _call_gemini(system_prompt: str, user_prompt: str) -> str:
-    """Essaie les modèles de config.LLM_MODELS dans l'ordre et renvoie la première réponse obtenue."""
+def generate_with_models(models: list[str], system_prompt: str, user_prompt: str, temperature: float | None = None) -> tuple[str, str]:
+    """Essaie les modèles donnés dans l'ordre ; renvoie (texte de la réponse, modèle qui a répondu)."""
     if not config.LLM_API_KEY:
         raise LLMUnavailableError("Aucune clé d'API : remplissez LLM_API_KEY dans backend/.env")
 
     failures = []
-    for model in config.LLM_MODELS:
+    for model in models:
         try:
-            return _post_gemini(model, system_prompt, user_prompt)
+            return _post_gemini(model, system_prompt, user_prompt, temperature=temperature), model
         except _TryNextModel as failure:
             failures.append(str(failure))
     raise LLMUnavailableError("Aucun modèle n'a pu répondre : " + " ; ".join(failures))
+
+
+def _call_gemini(system_prompt: str, user_prompt: str) -> str:
+    """Essaie les modèles de config.LLM_MODELS dans l'ordre et renvoie la première réponse obtenue."""
+    return generate_with_models(config.LLM_MODELS, system_prompt, user_prompt)[0]
 
 
 # Un fournisseur = une fonction qui prend (prompt système, prompt utilisateur) et renvoie du texte
