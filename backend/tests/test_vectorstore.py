@@ -106,3 +106,34 @@ def test_e5_models_get_query_and_passage_prefixes():
     assert embeddings.get_prefix("query", "intfloat/multilingual-e5-base") == "query: "
     assert embeddings.get_prefix("passage", "intfloat/multilingual-e5-base") == "passage: "
     assert embeddings.get_prefix("query", "BAAI/bge-m3") == ""
+
+
+def test_other_language_slots_are_a_minimum_not_a_cap(tmp_path):
+    # La bonne réponse n'existe qu'en arabe : les 4 chunks arabes sont les plus proches d'une question en français.
+    # Avec un plafond de 2 places, deux d'entre eux étaient écartés au profit de chunks français moins pertinents.
+    chunks, vectors = [], []
+    for number in range(4):
+        chunks.append({"chunk_id": f"ar_{number}", "file": f"ar_{number}.pdf", "page": 1, "theme": "t", "language": "ar", "url": "u", "text": "ar"})
+        vectors.append([1.0, 0.01 * number, 0.0])
+    for number in range(4):
+        chunks.append({"chunk_id": f"fr_{number}", "file": f"fr_{number}.pdf", "page": 1, "theme": "t", "language": "fr", "url": "u", "text": "fr"})
+        vectors.append([0.6, 0.01 * number, 0.8])
+    collection = vectorstore.get_collection(vectorstore.get_client(tmp_path / "chroma"), reset=True)
+    vectorstore.add_chunks(collection, chunks, vectors)
+
+    results = retriever.retrieve("Une question en français ?", top_k=5, collection=collection,
+                                 embed_fn=lambda q: [1.0, 0.0, 0.0], other_language_slots=2)
+    assert [r["language"] for r in results].count("ar") == 4
+    assert results[0]["language"] == "ar" and len(results) == 5
+
+
+def test_reserve_slots_replaces_the_last_chunks_of_the_question_language():
+    def chunk(name, language, score):
+        return {"file": name, "page": 1, "text": name, "language": language, "score": score}
+
+    selected = [chunk(f"fr{i}", "fr", 0.9 - 0.01 * i) for i in range(5)]
+    arabic = [chunk("ar0", "ar", 0.6), chunk("ar1", "ar", 0.55), chunk("ar2", "ar", 0.5)]
+    result = retriever.reserve_slots(selected, arabic, slots=2, other="ar")
+    assert [c["file"] for c in result] == ["fr0", "fr1", "fr2", "ar0", "ar1"]   # fr3 et fr4 (les derniers) ont cédé leur place
+    # minimum déjà atteint : rien ne change
+    assert retriever.reserve_slots(selected[:3] + arabic[:2], arabic, slots=2, other="ar")[-2:] == arabic[:2]

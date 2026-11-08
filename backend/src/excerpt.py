@@ -19,6 +19,11 @@ WORD = re.compile(r"\w+")
 SENTENCE_END = re.compile(r"(?<=[.!?؟؛])\s+")   # fin de phrase (point français ou arabe, « ؟ », « ؛ »)
 CLAUSE_END = re.compile(r"(?<=[,،:;])\s+")      # pour couper les phrases trop longues
 MIN_MATCHES = 2                                 # mots communs minimum (sauf si un nombre correspond)
+PRIVATE_USE = re.compile("[\ue000-\uf8ff]")       # puces de certains PDF, que l'écran affiche comme des carrés
+# Phrase qui renvoie à la précédente (« Ils concourent… », « Ce délai… », « هذه… ») : on montre aussi la phrase d'avant
+STARTS_WITH_REFERENCE = re.compile(
+    r"^(?:ils?|elles?|ce|cet|cette|ces|celui|celle|ceux|cela|ceci|ledit|ladite|lesdit[es]*|هذا|هذه|هؤلاء|ذلك|تلك)\b", re.IGNORECASE
+)
 
 DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
 ARABIC_LETTERS = str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي", "ة": "ه"})
@@ -89,6 +94,7 @@ def best_excerpt(text: str, answer: str, question: str = "", max_chars: int = co
     highlight_start / highlight_end encadrent cette phrase (None si aucune phrase ne se détache).
     """
     text = " ".join(text.split())                    # espaces et retours à la ligne ramenés à un seul espace
+    text = PRIVATE_USE.sub("•", text)                # même longueur : les positions ne bougent pas
     fallback = {"excerpt": text[:max_chars], "highlight_start": None, "highlight_end": None}
     wanted = stems_of(answer) | stems_of(question)
     if not wanted:
@@ -116,8 +122,14 @@ def best_excerpt(text: str, answer: str, question: str = "", max_chars: int = co
         return fallback
 
     start, end = spans[best_index]
+    shown_from = start
+    # La phrase renvoie à la précédente : on commence l'extrait une phrase plus tôt (surlignage inchangé)
+    if best_index > 0 and STARTS_WITH_REFERENCE.match(text[start:end]):
+        previous_start = spans[best_index - 1][0]
+        if start - previous_start <= max_chars // 2:
+            shown_from = previous_start
     return {
-        "excerpt": text[start : start + max_chars],
-        "highlight_start": 0,
-        "highlight_end": min(end, start + max_chars) - start,
+        "excerpt": text[shown_from : shown_from + max_chars],
+        "highlight_start": start - shown_from,
+        "highlight_end": min(end, shown_from + max_chars) - shown_from,
     }

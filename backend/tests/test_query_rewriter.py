@@ -69,3 +69,17 @@ def test_interleave_keeps_the_best_chunk_first():
     first = [make_chunk("a.pdf", 1, "a1", 0.9)]
     second = [make_chunk("b.pdf", 1, "b1", 0.95)]
     assert retriever.interleave([first, second], top_k=5)[0]["file"] == "b.pdf"
+
+
+def test_interleave_keeps_the_other_language_slots_when_merging_several_lists():
+    def chunk(name, language, score):
+        return {"file": name, "page": 1, "text": name, "language": language, "score": score}
+
+    # deux listes dont les meilleurs chunks sont français ; les chunks arabes, moins bien notés, étaient écartés
+    first = [chunk("f1", "fr", 0.9), chunk("f2", "fr", 0.8), chunk("f3", "fr", 0.7), chunk("a1", "ar", 0.6), chunk("a2", "ar", 0.55)]
+    second = [chunk("g1", "fr", 0.85), chunk("g2", "fr", 0.75), chunk("g3", "fr", 0.65), chunk("a1", "ar", 0.6), chunk("a3", "ar", 0.5)]
+    without = retriever.interleave([first, second], top_k=5)
+    assert [c["language"] for c in without].count("ar") == 0              # avant : aucune place pour l'arabe
+    kept = retriever.interleave([first, second], top_k=5, slots=2, other="ar")
+    assert [c["language"] for c in kept].count("ar") == 2 and len(kept) == 5
+    assert kept[0]["file"] == "f1"                                          # le meilleur chunk reste en tête

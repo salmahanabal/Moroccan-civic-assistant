@@ -89,3 +89,23 @@ def test_stem_ignores_accents_plural_and_stopwords():
     assert excerpt.stem("élections") == excerpt.stem("ELECTION")
     assert excerpt.stem("le") is None and excerpt.stem("de") is None
     assert excerpt.stem("7") is None and excerpt.stem("47") == "47"
+
+
+def test_a_sentence_that_refers_to_the_previous_one_is_shown_with_it():
+    text = "Les partis politiques œuvrent à l'encadrement des citoyens. Ils concourent à l'expression de la volonté des électeurs."
+    result = excerpt.best_excerpt(text, answer="Ils concourent à l'expression de la volonté des électeurs [1].", question="À quoi servent les partis ?")
+    assert result["excerpt"].startswith("Les partis politiques")                     # le sujet (« les partis ») est visible
+    assert highlighted(result) == "Ils concourent à l'expression de la volonté des électeurs."   # le surlignage reste sur la phrase qui répond
+
+
+def test_context_is_not_added_when_the_sentence_does_not_refer_to_the_previous_one():
+    text = "Le Roi dispose d'une liste civile. Le Roi nomme le Chef du Gouvernement au sein du parti arrivé en tête."
+    result = excerpt.best_excerpt(text, answer="Le Roi nomme le Chef du Gouvernement [1].", question="")
+    assert result["excerpt"].startswith("Le Roi nomme") and result["highlight_start"] == 0
+
+
+def test_private_use_bullets_are_replaced_without_moving_positions():
+    text = "Elle se compose de 395 membres : \uf0a7 305 sont élus au niveau local ; \uf0a7 90 au niveau régional."
+    result = excerpt.best_excerpt(text, answer="395 membres élus", question="")
+    assert "\uf0a7" not in result["excerpt"] and "•" in result["excerpt"]
+    assert len(result["excerpt"]) == len(text)

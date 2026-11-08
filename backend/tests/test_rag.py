@@ -143,3 +143,17 @@ def test_system_prompt_forbids_opinions_and_inventions():
     assert "neutre" in prompts.SYSTEM_PROMPT
     assert prompts.NO_ANSWER in prompts.SYSTEM_PROMPT
     assert prompts.OPINION in prompts.SYSTEM_PROMPT
+
+
+def test_system_prompt_asks_to_read_extracts_in_the_other_language_and_to_answer_partially():
+    # corrections des refus à tort : textes dans l'autre langue, et réponses partielles plutôt que refus
+    assert "autre langue" in prompts.SYSTEM_PROMPT
+    assert "même en partie" in prompts.SYSTEM_PROMPT
+    assert "une partie de la question" in prompts.SYSTEM_PROMPT
+
+
+def test_pdf_links_open_at_the_cited_page_and_other_links_are_unchanged():
+    assert rag.source_link("https://exemple.ma/loi.pdf", 9) == "https://exemple.ma/loi.pdf#page=9"
+    assert rag.source_link("https://exemple.ma/loi.PDF?v=2", 4) == "https://exemple.ma/loi.PDF?v=2#page=4"
+    assert rag.source_link("https://exemple.ma/loi.pdf#page=2", 9) == "https://exemple.ma/loi.pdf#page=2"   # déjà précisé
+    assert rag.source_link("https://exemple.ma/la-constitution", 13) == "https://exemple.ma/la-constitution"   # page web

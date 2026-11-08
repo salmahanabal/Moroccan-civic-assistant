@@ -14,6 +14,12 @@ from src.language import detect_language
 CITATION = re.compile(r"\[(\d+)\]")
 
 
+def source_link(url: str, page: int) -> str:
+    """Pour un PDF, ajoute « #page=N » : le navigateur ouvre le document directement à la page citée."""
+    path = url.split("?")[0].lower()
+    return f"{url}#page={page}" if path.endswith(".pdf") and "#" not in url else url
+
+
 def build_sources(chunks: list[dict], answer: str, question: str = "") -> list[dict]:
     """Prépare la liste des sources à renvoyer : fichier, page, extrait, lien, score.
 
@@ -33,7 +39,7 @@ def build_sources(chunks: list[dict], answer: str, question: str = "") -> list[d
             "file": chunk["file"],
             "page": chunk["page"],
             **excerpt.best_excerpt(chunk["text"], answer, question),
-            "url": chunk["url"],
+            "url": source_link(chunk["url"], chunk["page"]),
             "score": round(chunk["score"], 3),
         }
         for number, chunk in selected
