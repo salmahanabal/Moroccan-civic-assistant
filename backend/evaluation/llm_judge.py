@@ -2,6 +2,9 @@
 
     python -m evaluation.llm_judge             fait noter les réponses de results.csv par Gemini (reprend où il s'est arrêté)
     python -m evaluation.llm_judge --report    compare le juge à TES notes (accord brut, kappa, désaccords)
+    python -m evaluation.llm_judge --summary   résume les notes du juge seul (quand il n'y a pas de notes manuelles)
+
+Pour le deuxième jeu de questions : ajouter --results results_set2.csv --output judge_results_set2.csv
 
 Le juge voit exactement ce que tu voyais : la question, la réponse attendue, la réponse du chatbot et les
 passages cités. Il ne voit pas tes notes. Il ne remplace pas ta notation : il sert à mesurer si un LLM gratuit
@@ -233,16 +236,54 @@ def report() -> None:
           "est élevé (paradoxe du kappa) ; regarde surtout l'accord brut et la liste des désaccords.")
 
 
+def summarize_judgements(judge_rows: list[dict]) -> dict:
+    """Chiffres du juge seul : répartition et moyenne de l'exactitude, part de fidélité, détail par type de question."""
+    in_corpus = [row for row in judge_rows if row["type"] != "hors_corpus" and row["judge_exactitude"] != ""]
+    scores = [int(row["judge_exactitude"]) for row in in_corpus]
+    faithful = [int(row["judge_fidelite"]) for row in judge_rows if row["judge_fidelite"] != ""]
+    by_type = {}
+    for kind in sorted({row["type"] for row in in_corpus}):
+        values = [int(row["judge_exactitude"]) for row in in_corpus if row["type"] == kind]
+        by_type[kind] = {"questions": len(values), "moyenne": sum(values) / len(values)}
+    return {
+        "questions_corpus": len(scores),
+        "repartition": {note: scores.count(note) for note in (0, 1, 2)},
+        "moyenne": sum(scores) / len(scores) if scores else None,
+        "fidelite": sum(faithful), "fidelite_sur": len(faithful),
+        "par_type": by_type,
+    }
+
+
+def summary() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
+    result = summarize_judgements(read_csv(JUDGE_FILE))
+    print(f"Notes du juge seul ({JUDGE_FILE.name}, aucune note manuelle) : {result['questions_corpus']} questions du corpus")
+    if result["moyenne"] is not None:
+        print(f"Exactitude moyenne : {result['moyenne']:.2f} / 2   répartition : {result['repartition']}")
+    print(f"Fidélité : {result['fidelite']}/{result['fidelite_sur']}")
+    for kind, values in result["par_type"].items():
+        print(f"   {kind:9}: {values['moyenne']:.2f} / 2 sur {values['questions']} questions")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="LLM juge et accord avec tes notes")
     parser.add_argument("--report", action="store_true", help="compare le juge à tes notes")
+    parser.add_argument("--summary", action="store_true", help="résume les notes du juge seul")
     parser.add_argument("--pause", type=float, default=4.0, help="secondes d'attente entre deux questions")
+    parser.add_argument("--results", default=None, help="fichier de résultats à juger (défaut : results.csv)")
+    parser.add_argument("--output", default=None, help="fichier des notes du juge (défaut : judge_results.csv)")
     arguments = parser.parse_args()
+    global RESULTS_FILE, JUDGE_FILE
+    if arguments.results:
+        RESULTS_FILE = config.EVAL_DIR / arguments.results
+    if arguments.output:
+        JUDGE_FILE = config.EVAL_DIR / arguments.output
     if arguments.report:
         report()
+    elif arguments.summary:
+        summary()
     else:
         run_judge(arguments.pause)
-
 
 if __name__ == "__main__":
     main()

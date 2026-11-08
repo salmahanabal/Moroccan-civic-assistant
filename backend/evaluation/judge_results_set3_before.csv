@@ -1,0 +1,37 @@
+﻿id,type,judge_exactitude,judge_fidelite,judge_model,judge_raison
+1,simple,0,1,gemini-3.6-flash,L'assistant a refusé de répondre alors que l'information est censée figurer dans le corpus (motion législative - loi organique 64-14).
+2,simple,0,1,gemini-3.6-flash,L'assistant n'a pas répondu à la question posée concernant le délai d'élection par rapport au début du mandat.
+3,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement fidèle aux passages cités.
+4,simple,2,1,gemini-3.6-flash,La réponse donne le bon délai (7 jours) en accord avec la réponse attendue et les passages cités.
+5,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement appuyée par le texte extrait du document officiel.
+6,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement fidèle au passage cité (article 3).
+7,simple,2,1,gemini-3.6-flash,La réponse est exacte et toutes les informations fournies proviennent bien des passages cités.
+8,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+9,simple,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors qu'une réponse était attendue.
+10,arabe,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question était dans le corpus.
+11,arabe,2,1,gemini-3.6-flash,La réponse est exacte et entièrement fidèle aux passages cités.
+12,arabe,2,1,gemini-3.6-flash,"La réponse est exacte, complète et strictement fidèle aux passages cités."
+13,arabe,1,1,gemini-3.6-flash,La réponse mentionne le délai global de 15 jours pour le Parlement mais omets le détail du vote du Conseil des représentants (8 jours).
+14,arabe,2,1,gemini-3.6-flash,La réponse est exacte et entièrement fidèle aux passages cités.
+15,arabe,2,1,gemini-3.6-flash,La réponse confirme bien l'obligation d'avoir un مدير للنشر et s'appuie fidèlement sur les passages cités.
+16,simple,1,1,gemini-3.6-flash,La réponse mentionne le partenariat à l'origine du guide mais omet de citer les auteurs individuels (Lotte Geunis et Mohamed Doukha).
+17,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement appuyée par les passages cités.
+18,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+19,simple,2,1,gemini-3.6-flash,"La réponse contient la définition exacte de l'article 3 de la loi 46-19, parfaitement conforme aux passages cités et à la réponse attendue."
+20,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+21,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète par rapport à l'essentiel et entièrement fondée sur les passages cités."
+22,simple,2,1,gemini-3.6-flash,"La réponse est complète, exacte et s'appuie fidèlement sur le passage cité (article 130 de la Constitution)."
+23,arabe,1,1,gemini-3.6-flash,La réponse est partielle : elle mentionne l'electorat et l'actuel système indirect mais omet de préciser le mode de scrutin exact (l'electorat à la liste et à la représentation proportionnelle au plus fort reste).
+24,arabe,2,1,gemini-3.6-flash,"La réponse est complète, exacte et s'appuie fidèlement sur l'article 13 du texte cité."
+25,arabe,1,1,gemini-3.6-flash,La réponse omet les premier et deuxième tours de l'élection (majorité absolue) et commence directement par le troisième tour.
+26,arabe,2,1,gemini-3.5-flash-lite,La réponse donne le nombre exact de signatures requis (20.000) conformément aux textes cités.
+27,combinee,0,1,gemini-3.6-flash,L'assistant a refusé de répondre alors que l'information figure dans les textes officiels (refus injustifié).
+28,combinee,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre à tort alors que la question était dans le corpus.
+29,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+30,hors_corpus,,1,gemini-3.6-flash,L'assistant a correctement refusé de répondre à une question hors corpus.
+31,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+32,hors_corpus,,1,gemini-3.6-flash,L'assistant a correctement refusé de répondre à une question hors corpus.
+33,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+34,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus d'opinion.
+35,hors_corpus,,1,gemini-3.5-flash-lite,Refus correct d'une question hors corpus.
+36,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.

@@ -65,3 +65,37 @@ def test_judge_prompt_contains_the_four_blocks_but_no_notes():
     for expected in ("Q ?", "ATTENDU", "REPONSE", "doc.pdf, page 3", "TEXTE"):
         assert expected in prompt
     assert "note_exactitude" not in prompt
+
+
+def test_summary_counts_in_corpus_scores_and_ignores_refusals():
+    rows = [
+        {"id": "1", "type": "simple", "judge_exactitude": "2", "judge_fidelite": "1"},
+        {"id": "2", "type": "simple", "judge_exactitude": "1", "judge_fidelite": "1"},
+        {"id": "3", "type": "arabe", "judge_exactitude": "2", "judge_fidelite": "0"},
+        {"id": "4", "type": "hors_corpus", "judge_exactitude": "", "judge_fidelite": "1"},
+    ]
+    result = llm_judge.summarize_judgements(rows)
+    assert result["questions_corpus"] == 3
+    assert result["repartition"] == {0: 0, 1: 1, 2: 2}
+    assert result["moyenne"] == pytest.approx(5 / 3)
+    assert (result["fidelite"], result["fidelite_sur"]) == (3, 4)
+    assert result["par_type"]["simple"] == {"questions": 2, "moyenne": 1.5}
+
+
+def test_compare_runs_summary_counts_hits_wrong_refusals_and_judge_scores():
+    from evaluation import compare_runs
+
+    results = [
+        {"type": "simple", "hit_at_5": "1", "refus_correct": "", "found": "True", "duree_s": "2.0"},
+        {"type": "simple", "hit_at_5": "0", "refus_correct": "", "found": "False", "duree_s": "4.0"},
+        {"type": "hors_corpus", "hit_at_5": "", "refus_correct": "1", "found": "False", "duree_s": "1.0"},
+    ]
+    judge = [
+        {"type": "simple", "judge_exactitude": "2", "judge_fidelite": "1"},
+        {"type": "simple", "judge_exactitude": "0", "judge_fidelite": "1"},
+        {"type": "hors_corpus", "judge_exactitude": "", "judge_fidelite": "1"},
+    ]
+    summary = compare_runs.summarize_run(results, judge)
+    assert summary["hit"] == (1, 2) and summary["refus_correct"] == (1, 1) and summary["refus_a_tort"] == (1, 2)
+    assert summary["exactitude"] == 1.0 and summary["fidelite"] == (3, 3) and summary["latence"] == pytest.approx(7 / 3)
+    assert "| Jeu 9 | après | 50 % (1/2) | 100 % (1/1) | 50 % (1/2) | 1.00 / 2 | 100 % (3/3) | 2.3 s |" == compare_runs.format_row("Jeu 9", "après", summary)

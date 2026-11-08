@@ -5,6 +5,9 @@ Deux commandes, à lancer depuis le dossier backend :
     python -m evaluation.run_eval             pose les 30 questions et écrit results.csv
     python -m evaluation.run_eval --summary   calcule les chiffres à partir de results.csv
 
+Deuxième jeu de questions (voir build_questions_set2.py) :
+    python -m evaluation.run_eval --questions questions_set2.csv --output results_set2.csv --label set2
+
 Calculé automatiquement : hit rate@5, refus correct, latence.
 À remplir À LA MAIN dans results.csv (colonnes vides) : note_exactitude (0, 1 ou 2)
 et note_fidelite (0 ou 1). Seules les notes que tu saisis comptent.
@@ -162,10 +165,13 @@ def main() -> None:
     parser.add_argument("--pause", type=float, default=4.0, help="secondes d'attente entre deux questions")
     parser.add_argument("--no-llm", action="store_true", help="teste seulement la recherche (aucun appel au LLM)")
     parser.add_argument("--output", default=None, help="nom du fichier de résultats (défaut : results.csv)")
+    parser.add_argument("--questions", default=None, help="nom du fichier de questions (défaut : questions.csv ; ex. questions_set2.csv)")
     arguments = parser.parse_args()
+    global RESULTS_FILE, QUESTIONS_FILE
     if arguments.output:
-        global RESULTS_FILE
         RESULTS_FILE = config.EVAL_DIR / arguments.output
+    if arguments.questions:
+        QUESTIONS_FILE = config.EVAL_DIR / arguments.questions
     if arguments.summary:
         summary()
     else:

@@ -1,0 +1,46 @@
+﻿id,type,judge_exactitude,judge_fidelite,judge_model,judge_raison
+1,simple,2,1,gemini-3.6-flash,"La réponse énumère correctement toutes les catégories de représentants siégeant à la Chambre des conseillers, en conformité avec la réponse attendue et le passage cité."
+2,simple,0,1,gemini-3.6-flash,L'assistant a refusé de répondre alors que l'information est censée figurer dans le corpus.
+3,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement étayée par le passage cité.
+4,simple,0,1,gemini-3.6-flash,L'assistant a refusé de répondre alors que l'information est censée être dans le corpus.
+5,simple,2,1,gemini-3.6-flash,La réponse répond correctement à la question en s'appuyant strictement sur les passages cités.
+6,simple,2,1,gemini-3.6-flash,"La réponse est exacte, complète et s'appuie fidèlement sur les passages cités."
+7,simple,1,1,gemini-3.6-flash,"La réponse n'énonce pas explicitement les quatre valeurs clés (transparence, participation, responsabilité, inclusion) mentionnées dans la réponse attendue, mais elle reste fidèle aux extraits."
+8,simple,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question était dans le corpus.
+9,simple,0,1,gemini-3.6-flash,L'assistant indique ne pas avoir trouvé l'information alors qu'elle fait partie du corpus (loi organique 59-11).
+10,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+11,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement fidèle aux passages cités.
+12,simple,2,1,gemini-3.6-flash,"La réponse mentionne correctement le délai maximum de six mois et sa prorogation éventuelle, le tout fidèlement extrait des passages cités."
+13,simple,1,1,gemini-3.6-flash,"La réponse indique bien les mois (février, mai et octobre), mais omet de préciser explicitement le nombre de sessions (trois)."
+14,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement appuyée par les passages cités.
+15,simple,2,1,gemini-3.6-flash,"La réponse est exacte, complète et totalement fidèle aux passages cités."
+16,simple,2,1,gemini-3.6-flash,"La réponse indique correctement la durée de cinq ans renouvelable une seule fois, conformément aux passages cités."
+17,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement appuyée par les passages cités."
+18,simple,2,1,gemini-3.6-flash,"La définition proposée par l'assistant est complète, exacte et parfaitement fidèle au passage cité de la loi organique 97-15."
+19,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fondée sur les passages cités."
+20,simple,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle omet certains éléments de la réponse attendue (comme la charte d'éthique), mais elle est fidèle aux passages cités."
+21,simple,2,1,gemini-3.6-flash,La réponse identifie correctement l'Autorité compétente pour recevoir les réclamations et s'appuie fidèlement sur le texte cité.
+22,simple,1,1,gemini-3.6-flash,La réponse mentionne la plupart des conditions mais omet le statut de journaliste professionnel qui figurait dans la réponse attendue.
+23,simple,2,1,gemini-3.6-flash,La réponse est exacte et entièrement justifiée par le passage cité (loi organique 26-16).
+24,simple,2,1,gemini-3.6-flash,La réponse fournie est exacte et totalement fidèle au texte cité (article 271).
+25,arabe,2,1,gemini-3.6-flash,La réponse est exacte et entièrement fidèle aux passages cités.
+26,arabe,1,1,gemini-3.5-flash-lite,La réponse est partielle car elle oublie de mentionner le délai de trois jours en cas d'urgence (Article 17).
+27,arabe,0,1,gemini-3.6-flash,L'assistant a refusé de répondre alors que la réponse figurait dans le corpus.
+28,arabe,2,1,gemini-3.6-flash,"La réponse est exacte, complète et strictement fidèle au passage cité."
+29,arabe,1,1,gemini-3.5-flash-lite,"La réponse donne le nombre minimum de membres (cinq) qui est correct et présent dans le texte, mais elle omet la condition sur les régions."
+30,arabe,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète et entièrement justifiée par les passages cités."
+31,arabe,2,1,gemini-3.5-flash-lite,الجواب صحيح وكامل ومستمد بالكامل من النصوص المقتطفة.
+32,combinee,2,1,gemini-3.5-flash-lite,La réponse donne les informations correctes et conformes aux sources fournies.
+33,combinee,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question était dans le corpus.
+34,combinee,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors qu'une réponse existait dans le corpus.
+35,combinee,1,0,gemini-3.5-flash-lite,"La réponse mélange les commissions d'enquête parlementaires et celles des conseils locaux, et omet le délai principal de six mois pour les commissions parlementaires."
+36,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+37,hors_corpus,,1,gemini-3.6-flash,L'assistant a correctement refusé de répondre à une question hors corpus.
+38,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+39,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+40,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+41,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+42,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+43,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question d'opinion.
+44,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+45,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.

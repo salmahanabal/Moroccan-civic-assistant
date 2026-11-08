@@ -1,0 +1,46 @@
+﻿id,type,judge_exactitude,judge_fidelite,judge_model,judge_raison
+1,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les passages cités."
+2,simple,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors qu'une réponse existait dans le corpus.
+3,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète par rapport à l'essentiel et entièrement fondée sur les passages cités."
+4,simple,0,1,gemini-3.5-flash-lite,L'assistant a raté l'adresse du site qui était pourtant présente dans le dernier passage cité.
+5,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète par rapport à l'essentiel et entièrement fidèle aux passages cités."
+6,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète et entièrement justifiée par les passages cités."
+7,simple,1,1,gemini-3.5-flash-lite,"La réponse décrit des principes et rôles du gouvernement ouvert pour les parlements mais oublie de nommer explicitement les valeurs fondamentales demandées (transparence, participation, responsabilité et inclusion)."
+8,simple,1,1,gemini-3.5-flash-lite,L'assistant identifie les types de soutien mais indique à tort que les proportions exactes ne sont pas dans les extraits (partielles car les pourcentages y manquent effectivement).
+9,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+10,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète par rapport à l'essentiel et entièrement fondée sur les passages cités."
+11,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+12,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+13,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète et strictement basée sur les passages fournis."
+14,simple,1,1,gemini-3.5-flash-lite,"La réponse donne le nombre correct de membres et mentionne le président, mais omet la répartition en cinq catégories présente dans la réponse attendue."
+15,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+16,simple,2,1,gemini-3.5-flash-lite,La réponse donne la durée exacte du mandat telle qu'indiquée dans les textes officiels.
+17,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+18,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+19,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fidèle aux textes cités."
+20,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète par rapport aux passages fournis, et entièrement fidèle à ces derniers."
+21,simple,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle ne mentionne pas le nom complet de l'Autorité ni ses attributions complémentaires, mais elle est fidèle aux passages cités."
+22,simple,1,1,gemini-3.5-flash-lite,"La réponse oublie de mentionner la condition d'avoir le statut de journaliste professionnel, mais tout ce qui est dit est présent dans les passages."
+23,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les passages cités."
+24,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+25,arabe,2,1,gemini-3.5-flash-lite,La réponse donne la durée exacte du mandat telle que mentionnée dans les passages cités.
+26,arabe,2,1,gemini-3.5-flash-lite,الجواب دقيق وكامل ويتطابق مع النصوص المقتطفة.
+27,arabe,2,1,gemini-3.5-flash-lite,"La réponse donne le nombre exact d'membres et mentionne le président, conformément au texte cité."
+28,arabe,2,1,gemini-3.5-flash-lite,الجواب دقيق وكامل ومستخرج تماما من النصوص المقتطفة.
+29,arabe,1,1,gemini-3.5-flash-lite,الجواب صحيح جزئيا لأنه ذكر عدد الأعضاء ولكن أغفل شرط الانتماء لثلث الجهات المذكور في الإجابة المتوقعة.
+30,arabe,2,1,gemini-3.5-flash-lite,الجواب دقيق ومستوف لجميع العناصر ومطابق للنصوص المقتطفة.
+31,arabe,2,1,gemini-3.5-flash-lite,الجواب صحيح وكامل ومستمد بالكامل من النصوص المقتطفة.
+32,combinee,1,1,gemini-3.5-flash-lite,La réponse donne la durée pour les conseillers communaux mais indique à juste titre que les députés ne sont pas dans les textes.
+33,combinee,1,1,gemini-3.5-flash-lite,"La réponse donne la durée du mandat du Médiateur mais est incomplète car elle ne trouve pas l'information sur le CESE, absente des passages cités."
+34,combinee,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle ne donne que les informations sur le conseil communal (présentes dans les passages) et indique à tort que le conseil régional n'y figure pas, bien que toutes les informations soient tirées des passages fournis."
+35,combinee,0,1,gemini-3.5-flash-lite,"La réponse mélange les commissions d'enquête parlementaires (visées par la question) et les commissions locales, et donne de mauvais délais pour le rapport parlementaire."
+36,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+37,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+38,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+39,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+40,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+41,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+42,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+43,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question d'opinion.
+44,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+45,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.

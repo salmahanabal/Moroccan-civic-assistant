@@ -1,0 +1,37 @@
+﻿id,type,judge_exactitude,judge_fidelite,judge_model,judge_raison
+1,simple,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question fait partie du corpus.
+2,simple,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors que la question relève du corpus.
+3,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+4,simple,2,1,gemini-3.5-flash-lite,La réponse donne correctement le délai de 7 jours et est entièrement justifiée par les passages cités.
+5,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+6,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+7,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et fidèle aux passages cités."
+8,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement ancrée dans les passages cités."
+9,simple,0,1,gemini-3.5-flash-lite,L'assistant a refusé de répondre alors qu'une réponse existait dans le corpus.
+10,arabe,1,1,gemini-3.5-flash-lite,"La réponse donne le droit de déposer une plainte mais omet l'étape de la commission avant le recours, bien que les informations soient fidèles aux passages."
+11,arabe,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les passages cités."
+12,arabe,2,1,gemini-3.5-flash-lite,"La réponse est complète, correcte et entièrement justifiée par les textes cités."
+13,arabe,1,1,gemini-3.5-flash-lite,الجواب صحيح جزئياً لأنه ذكر مدة تصويت البرلمان (15 يوماً) لكنه أغفل تفصيل مدة بت مجلس النواب (8 أيام) المذكورة في الإجابة المتوقعة.
+14,arabe,2,1,gemini-3.5-flash-lite,الجواب صحيح وكامل ومستمد بالكامل من النصوص المقتبسة.
+15,arabe,2,1,gemini-3.5-flash-lite,La réponse confirme bien que le journal électronique doit avoir un directeur de la publication et s'appuie correctement sur les passages fournis.
+16,simple,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle ne mentionne pas les auteurs précis du guide (Lotte Geunis et Mohamed Doukha), mais ce qu'elle dit est fidèle aux passages cités."
+17,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+18,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète et entièrement justifiée par le texte cité."
+19,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement appuyée par les passages cités."
+20,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+21,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète par rapport à l'essentiel et totalement fidèle aux textes cités."
+22,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, correcte et entièrement justifiée par les passages cités."
+23,arabe,1,1,gemini-3.5-flash-lite,الرئيس أجاب عن كيفية تكوين أعضاء المجلس وتوزيعهم بدل نمط الاقتراع باللائحة والتمثيل النسبي.
+24,arabe,2,1,gemini-3.5-flash-lite,الجواب دقيق وكامل ومطابق تماما للنصوص الرسمية المستشهد بها.
+25,arabe,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle omet le premier et le second tour présents dans le texte, mais elle est fidèle aux passages cités."
+26,arabe,2,1,gemini-3.5-flash-lite,الجواب صحيح وكامل ومستمد بالكامل من النصوص المقتطفة.
+27,combinee,1,1,gemini-3.5-flash-lite,"La réponse est partielle car elle ne donne pas l'information sur le CESE (faute aux passages fournis), mais ce qui est dit est fidele aux textes."
+28,combinee,1,1,gemini-3.5-flash-lite,"La réponse donne la bonne information pour le Médiateur mais indique à tort que les informations sur le CESE manquent, car le corpus ne contenait effectivement pas ces passages."
+29,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+30,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+31,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+32,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+33,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+34,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus d'opinion politique.
+35,hors_corpus,,1,gemini-3.5-flash-lite,Refus correct pour une question hors corpus.
+36,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.

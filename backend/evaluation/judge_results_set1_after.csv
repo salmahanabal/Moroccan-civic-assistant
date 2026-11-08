@@ -1,0 +1,31 @@
+﻿id,type,judge_exactitude,judge_fidelite,judge_model,judge_raison
+1,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+2,simple,1,1,gemini-3.5-flash-lite,"La réponse donne le nombre total de membres mais omet la répartition détaillée (305 locaux et 90 régionaux), ce qui la rend partielle, bien qu'elle soit fidèle aux passages."
+3,simple,2,1,gemini-3.5-flash-lite,La réponse donne la durée exacte (cinq ans) présente dans la réponse attendue et les passages cités.
+4,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle au texte officiel cité."
+5,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les passages cités."
+6,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète et s'appuie fidèlement sur les passages fournis."
+7,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte, complète et strictement basée sur les textes cités."
+8,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+9,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fondée sur les passages cités."
+10,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les passages cités."
+11,simple,2,1,gemini-3.5-flash-lite,"La réponse est exacte et complète, et toutes les informations proviennent bien des passages cités."
+12,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+13,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+14,simple,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et toutes les informations proviennent bien des passages cités."
+15,simple,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement justifiée par les passages cités."
+16,combinee,2,1,gemini-3.5-flash-lite,La réponse est précise et entièrement appuyée par les textes fournis.
+17,combinee,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fondée sur les passages cités."
+18,combinee,2,1,gemini-3.5-flash-lite,"La réponse est complète, exacte et entièrement fondée sur les passages cités."
+19,combinee,2,1,gemini-3.5-flash-lite,"La réponse est complète, correcte et entièrement justifiée par les passages fournis."
+20,combinee,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les textes fournis."
+21,arabe,1,1,gemini-3.5-flash-lite,La réponse donne le nombre total de députés mais omet la répartition détaillée mentionnée dans la réponse attendue.
+22,arabe,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fondée sur les passages cités."
+23,arabe,2,1,gemini-3.5-flash-lite,"La réponse est correcte, complète et entièrement fidèle aux passages cités."
+24,arabe,2,1,gemini-3.5-flash-lite,الجواب دقيق ومستوفٍ لجميع الشروط المذكورة في النصوص الرسمية والمستطردة بدقة.
+25,arabe,2,1,gemini-3.5-flash-lite,الجواب صحيح وكامل ومستمد بالكامل من النصوص المضمنة.
+26,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+27,hors_corpus,,1,gemini-3.6-flash,L'assistant a correctement refusé de répondre à une question hors corpus.
+28,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+29,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
+30,hors_corpus,,1,gemini-3.5-flash-lite,L'assistant a correctement refusé de répondre à une question hors corpus.
