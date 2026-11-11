@@ -2,13 +2,23 @@
 
 [![CI](https://github.com/salmahanabal/Moroccan-civic-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/salmahanabal/Moroccan-civic-assistant/actions/workflows/ci.yml)
 
-Un chatbot **bilingue (français / arabe)** qui répond aux questions sur la **Constitution, les élections, les partis politiques et les institutions du Maroc**, uniquement à partir de **35 textes officiels**. Chaque réponse cite ses sources (document, page, extrait avec la phrase pertinente surlignée, lien d'origine). L'assistant reste **strictement neutre** : il explique ce que disent les textes, jamais pour qui voter, et il dit « je ne sais pas » quand la réponse n'est pas dans les documents.
+> Un chatbot **bilingue (français / arabe)** qui répond aux questions sur la **Constitution, les élections, les partis politiques et les institutions du Maroc**, uniquement à partir de **35 textes officiels**, en citant ses sources.
 
-Le pipeline RAG (*Retrieval-Augmented Generation*) est **écrit à la main**, sans LangChain, une fonction par étape. Le projet inclut une **évaluation chiffrée** (trois jeux de questions qui couvrent les 35 documents, dont un test final jamais utilisé pour régler le système ; notation manuelle ; juge LLM validé par un coefficient kappa ; analyse exploratoire des embeddings) et reconnaît ses limites : des corrections ont réduit les refus à tort, et l'écart de fiabilité selon la langue du texte (un peu moindre quand la question et le texte ne sont pas dans la même langue) est mesuré et documenté.
+![Démo de l'application : réponse avec sources, source surlignée, document officiel, arabe, refus neutre](docs/demo/demo_surlignage_natif.gif)
+
+<sub>[Voir la vidéo en vitesse réelle](docs/demo/demo_surlignage_natif.webm) (WebM, 5,4 Mo) · Le projet n'est pas hébergé en ligne : la démo a été enregistrée sur une exécution locale, voir [Installation et lancement](#installation-et-lancement).</sub>
+
+**En bref**
+
+- **Sources vérifiables** : chaque réponse cite le document, la page, un extrait avec la phrase pertinente surlignée et le lien d'origine (les PDF s'ouvrent à la page citée).
+- **Strictement neutre** : l'assistant explique ce que disent les textes, jamais pour qui voter, et il dit « je ne sais pas » quand la réponse n'est pas dans les documents.
+- **Pipeline RAG écrit à la main**, sans LangChain, une fonction par étape (extraction, nettoyage, découpage, embeddings `bge-m3`, ChromaDB, génération avec Gemini).
+- **Évaluation chiffrée et honnête** : trois jeux de questions qui couvrent les 35 documents, dont un test final jamais utilisé pour régler le système ; un juge LLM validé par un coefficient kappa ; des limites mesurées et documentées. Voir [les résultats](#résultats-en-un-coup-dœil).
 
 Projet de portfolio en data science / IA. Auteure : [@salmahanabal](https://github.com/salmahanabal).
 
-## Sommaire
+<details>
+<summary><strong>Sommaire</strong></summary>
 
 - [Démo](#démo)
 - [Résultats en un coup d'œil](#résultats-en-un-coup-dœil)
@@ -24,13 +34,11 @@ Projet de portfolio en data science / IA. Auteure : [@salmahanabal](https://gith
 - [Limites et pistes d'amélioration](#limites-et-pistes-damélioration)
 - [Confidentialité, avertissement et sources](#confidentialité-avertissement-et-sources)
 
+</details>
+
 ## Démo
 
-![Démo de l'application : réponse avec sources, source surlignée, document officiel, arabe, refus neutre](docs/demo/demo_surlignage_natif.gif)
-
-[Voir la vidéo en vitesse réelle (WebM, 5,4 Mo)](docs/demo/demo_surlignage_natif.webm) · durée : environ 42 secondes dans le GIF.
-
-Ce que montre la démo :
+La démo en tête de page dure environ 42 secondes (GIF ; [vidéo à vitesse réelle](docs/demo/demo_surlignage_natif.webm)). Elle montre :
 
 1. **Une question en français** (« Qui choisit le chef du gouvernement ? ») reçoit une réponse avec ses sources numérotées.
 2. **Un clic déplie la source** : l'application affiche la phrase du passage qui répond (ici l'article 47 de la Constitution) et la surligne.
@@ -40,7 +48,7 @@ Ce que montre la démo :
 
 À propos de l'enregistrement : les surlignages sont ceux de l'application (voir [`SourceCard.jsx`](frontend/src/components/SourceCard.jsx)) et celui du navigateur sur le site officiel ; les questions sont tapées par un script et les bandeaux de texte sont ajoutés pour expliquer.
 
-**Le projet n'est pas hébergé publiquement** : la démo a été enregistrée sur une exécution locale. La section [Installation et lancement](#installation-et-lancement) explique comment la reproduire.
+
 
 ## Résultats en un coup d'œil
 
