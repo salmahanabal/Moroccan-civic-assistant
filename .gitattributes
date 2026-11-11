@@ -1,0 +1,3 @@
+# Le notebook d'analyse (avec ses sorties et ses images) est très volumineux : on l'exclut des statistiques
+# de langages affichées par GitHub, pour que le dépôt apparaisse comme un projet Python et JavaScript.
+*.ipynb linguist-documentation
