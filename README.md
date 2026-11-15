@@ -1,438 +1,196 @@
-# Assistant civique marocain
+<div align="center">
 
-[![CI](https://github.com/salmahanabal/Moroccan-civic-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/salmahanabal/Moroccan-civic-assistant/actions/workflows/ci.yml)
+# Moroccan Civic Assistant
+### A bilingual (French / Arabic) RAG chatbot grounded in 35 official texts
 
-> Un chatbot **bilingue (français / arabe)** qui répond aux questions sur la **Constitution, les élections, les partis politiques et les institutions du Maroc**, uniquement à partir de **35 textes officiels**, en citant ses sources.
+<p>Ask about the Moroccan Constitution, elections, political parties and institutions, in French or Arabic. The assistant answers only from official documents, cites and highlights its sources, stays politically neutral, and says "I don't know" when the answer is not in the texts.</p>
 
-![Démo de l'application : réponse avec sources, source surlignée, document officiel, arabe, refus neutre](docs/demo/demo_surlignage_natif.gif)
+<p>
+  <a href="README.fr.md"><img src="https://img.shields.io/badge/Version_fran%C3%A7aise-6A1B9A?style=for-the-badge&logo=googletranslate&logoColor=white" alt="Version française"></a>
+  <a href="backend/notebooks/01_analyse_exploratoire.ipynb"><img src="https://img.shields.io/badge/Exploratory_analysis-1565C0?style=for-the-badge&logo=jupyter&logoColor=white" alt="Exploratory analysis notebook"></a>
+  <a href="https://github.com/salmahanabal/Moroccan-civic-assistant/actions/workflows/ci.yml"><img src="https://github.com/salmahanabal/Moroccan-civic-assistant/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+</p>
 
-<sub>[Voir la vidéo en vitesse réelle](docs/demo/demo_surlignage_natif.webm) (WebM, 5,4 Mo) · Le projet n'est pas hébergé en ligne : la démo a été enregistrée sur une exécution locale, voir [Installation et lancement](#installation-et-lancement).</sub>
+<p>
+  <a href="#results"><img src="https://img.shields.io/badge/Final_test_hit_rate%405-86%25-2E7D32?style=for-the-badge" alt="Final test hit rate@5 86%"></a>
+  <a href="#results"><img src="https://img.shields.io/badge/Wrongful_refusals-18%25_%E2%86%92_11%25-1565C0?style=for-the-badge" alt="Wrongful refusals 18% to 11%"></a>
+  <a href="#results"><img src="https://img.shields.io/badge/Correct_refusals-23%2F23-2E7D32?style=for-the-badge" alt="Correct refusals 23/23"></a>
+  <a href="#corpus"><img src="https://img.shields.io/badge/Official_documents-35-5E35B1?style=for-the-badge" alt="35 official documents"></a>
+  <a href="#corpus"><img src="https://img.shields.io/badge/Languages-French_%2B_Arabic-6A1B9A?style=for-the-badge" alt="French and Arabic"></a>
+</p>
 
-**En bref**
+<p>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/ChromaDB-3F51B5?style=for-the-badge" alt="ChromaDB">
+  <img src="https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini">
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+</p>
 
-- **Sources vérifiables** : chaque réponse cite le document, la page, un extrait avec la phrase pertinente surlignée et le lien d'origine (les PDF s'ouvrent à la page citée).
-- **Strictement neutre** : l'assistant explique ce que disent les textes, jamais pour qui voter, et il dit « je ne sais pas » quand la réponse n'est pas dans les documents.
-- **Pipeline RAG écrit à la main**, sans LangChain, une fonction par étape (extraction, nettoyage, découpage, embeddings `bge-m3`, ChromaDB, génération avec Gemini).
-- **Évaluation chiffrée et honnête** : trois jeux de questions qui couvrent les 35 documents, dont un test final jamais utilisé pour régler le système ; un juge LLM validé par un coefficient kappa ; des limites mesurées et documentées. Voir [les résultats](#résultats-en-un-coup-dœil).
+</div>
 
-Projet de portfolio en data science / IA. Auteure : [@salmahanabal](https://github.com/salmahanabal).
+---
 
-<details>
-<summary><strong>Sommaire</strong></summary>
+## Table of contents
 
-- [Démo](#démo)
-- [Résultats en un coup d'œil](#résultats-en-un-coup-dœil)
-- [Fonctionnalités](#fonctionnalités)
-- [Architecture](#architecture)
-- [Choix techniques et justifications](#choix-techniques-et-justifications)
+- [Overview](#overview)
+- [Demo](#demo)
+- [Highlights](#highlights)
+- [How it works](#how-it-works)
 - [Corpus](#corpus)
-- [Évaluation](#évaluation)
-- [Installation et lancement](#installation-et-lancement)
+- [Results](#results)
+- [Evaluation method](#evaluation-method)
+- [Exploratory analysis](#exploratory-analysis)
+- [The web interface](#the-web-interface)
 - [API](#api)
-- [Structure du dépôt](#structure-du-dépôt)
-- [Qualité, tests et intégration continue](#qualité-tests-et-intégration-continue)
-- [Limites et pistes d'amélioration](#limites-et-pistes-damélioration)
-- [Confidentialité, avertissement et sources](#confidentialité-avertissement-et-sources)
+- [Project structure](#project-structure)
+- [Quality](#quality)
+- [Limitations](#limitations)
+- [Ideas for improvement](#ideas-for-improvement)
+- [Tech stack](#tech-stack)
+- [Privacy and disclaimer](#privacy-and-disclaimer)
+- [Author](#author)
 
-</details>
+## Overview
 
-## Démo
+Many young people cannot easily find what the law says about elections, parties or the Parliament: the texts are scattered across several official websites, written in legal language, and often available in one language only.
 
-La démo en tête de page dure environ 42 secondes (GIF ; [vidéo à vitesse réelle](docs/demo/demo_surlignage_natif.webm)). Elle montre :
+This project is a **retrieval-augmented generation (RAG)** system, built by hand without LangChain: it retrieves the passages of 35 official Moroccan texts that are closest to a question, then asks an LLM to answer **only** from those passages. Every answer cites its sources (document, page, the sentence that answers, link to the original). When the passages do not contain the answer, the assistant says so instead of inventing one, and it refuses to give political opinions.
 
-1. **Une question en français** (« Qui choisit le chef du gouvernement ? ») reçoit une réponse avec ses sources numérotées.
-2. **Un clic déplie la source** : l'application affiche la phrase du passage qui répond (ici l'article 47 de la Constitution) et la surligne.
-3. **« Ouvrir le document »** mène au site officiel de la Chambre des représentants, où l'on retrouve l'article cité.
-4. **Le passage en arabe** retourne l'interface de droite à gauche, et la question arabe reçoit une réponse avec ses sources.
-5. **Une question d'opinion** (« Pour quel parti dois-je voter ? ») reçoit un refus poli et neutre.
+The project also documents how well it works: three question sets, a hand-scored evaluation, an LLM judge validated with Cohen's kappa, an exploratory analysis of the embeddings, and a list of measured limits.
 
-À propos de l'enregistrement : les surlignages sont ceux de l'application (voir [`SourceCard.jsx`](frontend/src/components/SourceCard.jsx)) et celui du navigateur sur le site officiel ; les questions sont tapées par un script et les bandeaux de texte sont ajoutés pour expliquer.
+It is a **presentation repository**: code, evaluation and documentation are public, and setup instructions are intentionally not provided.
 
+## Demo
 
+![Demo: answer with sources, highlighted source, official document, Arabic, neutral refusal](docs/demo/demo_surlignage_natif.gif)
 
-## Résultats en un coup d'œil
+<sub>[Watch the video at real speed](docs/demo/demo_surlignage_natif.webm) (WebM, 5.4 MB). The project is not hosted online: the demo was recorded from a local run.</sub>
 
-Configuration finale (35 documents, `BAAI/bge-m3`, minimum de 2 passages de l'autre langue, découpage des questions à plusieurs volets, consigne corrigée), mesurée sur **trois jeux de questions, avant et après les corrections** décrites [plus bas](#corrections-apportées-et-test-final). Le tableau est produit par `python -m evaluation.compare_runs` : chaque chiffre vient des fichiers de résultats. L'exactitude et la fidélité sont celles du **juge LLM** pour les trois jeux, afin de comparer « avant » et « après » sur le même pied (la notation manuelle du jeu de départ, 1,92 / 2, concerne l'ancien système et reste dans [`results.csv`](backend/evaluation/results.csv)).
+The demo shows a French question with numbered sources, a click that unfolds the source and highlights the sentence that answers (Article 47 of the Constitution), the link to the official site, the same in Arabic with a right-to-left interface, and a polite neutral refusal to an opinion question.
 
-Les trois lots de questions : le **jeu de départ** (30 questions écrites au début du projet), le **jeu de réglage** (45 questions sur les documents que le premier ignorait) et le **jeu de test final** (36 questions écrites avant toute correction, jamais utilisées pour corriger le système). Chaque question a sa réponse attendue (fichiers `questions.csv`, `questions_set2.csv`, `questions_set3.csv`).
+## Highlights
 
-| Jeu | Système | Hit rate@5 | Refus correct (hors corpus) | Refus à tort (corpus) | Exactitude (juge) | Fidélité (juge) | Latence |
-|---|---|---|---|---|---|---|---|
-| Jeu de départ (30 questions) | avant | 92 % (23/25) | 100 % (5/5) | 0 % (0/25) | 1.92 / 2 | 100 % (30/30) | 10.0 s |
-| Jeu de départ (30 questions) | après | 84 % (21/25) | 100 % (5/5) | 0 % (0/25) | 1.92 / 2 | 100 % (30/30) | 3.6 s |
-| Jeu de réglage (45 questions) | avant | 80 % (28/35) | 100 % (10/10) | 20 % (7/35) | 1.40 / 2 | 98 % (44/45) | 3.1 s |
-| Jeu de réglage (45 questions) | après | 89 % (31/35) | 100 % (10/10) | 3 % (1/35) | 1.57 / 2 | 100 % (45/45) | 2.5 s |
-| Jeu de test final (36 questions) | avant | 89 % (25/28) | 100 % (8/8) | 18 % (5/28) | 1.43 / 2 | 100 % (36/36) | 4.8 s |
-| Jeu de test final (36 questions) | après | 86 % (24/28) | 100 % (8/8) | 11 % (3/28) | 1.54 / 2 | 100 % (36/36) | 3.0 s |
+- **Verifiable sources.** Each answer shows the document, the page, an excerpt with the answering sentence highlighted, and a link to the original (PDFs open at the cited page).
+- **Strict neutrality.** Opinion and voting-advice questions are refused before any LLM call (French and Arabic rules), and a strict prompt backs this up.
+- **One multilingual index.** `BAAI/bge-m3` embeds French and Arabic in the same space, so a French question can find a law that exists only in Arabic. At least 2 of the 5 retrieved passages come from the other language.
+- **Honest refusals.** A similarity threshold and a strict prompt make the assistant answer "not in my documents" rather than invent.
+- **Multi-part questions.** A question about two topics is split into simple questions for retrieval, with a fallback if the LLM is slow.
+- **Hand-written pipeline.** Extraction, cleaning (including Arabic ligature repair), chunking, embeddings, vector store, retrieval and generation are one readable function each.
+- **Measured, not claimed.** Three question sets that cover all 35 documents, including a final test never used to tune the system.
+- **Engineering basics.** FastAPI with validation and rate limiting, Docker image, GitHub Actions CI, 171 tests.
 
-Les jeux de départ et de réglage ont servi à **régler** les corrections (le jeu de départ est celui sur lequel l'ancien système avait déjà été réglé). Le jeu de test final, écrit avant toute correction et mesuré une seule fois avec le système corrigé, est le **test final**.
-
-**Ce qu'il faut en retenir :**
-
-- **Les refus à tort baissent** (le système répondait « pas dans mes documents » alors que la réponse existe) : 20 % → 3 % sur le jeu de réglage, et **18 % → 11 % sur le test final** (5 → 3 questions sur 28).
-- **L'exactitude notée par le juge monte un peu** : 1,40 → 1,57 (jeu de réglage) et **1,43 → 1,54 sur le test final** ; elle ne bouge pas sur le jeu de départ.
-- **Aucune invention nouvelle** : les 23 questions hors corpus des trois jeux sont toujours refusées (100 %) et la fidélité reste à 100 % sauf une réponse du jeu de réglage avant correction.
-- **La recherche ne s'améliore pas de façon fiable** : hit rate@5 en hausse sur le jeu de réglage (80 % → 89 %), en légère baisse sur le test final (89 % → 86 %, une question) et sur le jeu de départ (92 % → 84 %).
-- **Le système répond dans la langue de la question quelle que soit la langue du texte** (24 des 28 questions qui croisent les langues obtiennent une réponse), avec une fiabilité un peu moindre quand les deux langues diffèrent : [écart mesuré](#corrections-apportées-et-test-final).
-
-Tout cela porte sur de petits jeux (28 à 35 questions du corpus chacun) : un écart d'une ou deux questions est dans le bruit. Les latences sont mesurées des jours différents sur un service gratuit dont la charge varie : elles ne sont pas comparables entre elles.
-
-## Fonctionnalités
-
-- **Questions en français et en arabe**, y compris quand le texte officiel n'existe que dans l'autre langue (réponse dans la langue de la question).
-- **Sources vérifiables** : seuls les passages réellement cités par la réponse sont affichés, avec fichier, page, lien d'origine (les PDF s'ouvrent directement à la page citée) et la **phrase qui répond surlignée**.
-- **Neutralité** : refus des demandes d'avis ou de conseil de vote, détectées avant tout appel au modèle (français et arabe) puis par une consigne stricte au LLM.
-- **Refus honnête** : si aucun passage n'est assez proche ou si le modèle ne trouve pas la réponse, l'assistant le dit au lieu d'inventer.
-- **Questions à plusieurs volets** (« Comment sont choisis les députés, et qui devient chef du gouvernement ? ») : la question est découpée en sous-questions pour la recherche.
-- **Interface React** adaptée à l'ordinateur et au téléphone, avec affichage de droite à gauche pour l'arabe, exemples de questions et avertissement toujours visible.
-- **API FastAPI** documentée (`/docs`), avec limitation de requêtes par adresse IP et CORS restreint.
-- **Confidentialité** : le texte des questions n'est jamais écrit dans les journaux.
-
-## Architecture
+## How it works
 
 ```mermaid
 flowchart LR
-  subgraph Hors ligne
-    A["35 PDF officiels"] --> B["Extraction (PyMuPDF)"] --> C["Nettoyage (ligatures arabes)"] --> D["Découpage 800 / 150"] --> E["Embeddings bge-m3"] --> F[("ChromaDB")]
+  subgraph Offline
+    A["35 official PDFs"] --> B["Extraction (PyMuPDF)"] --> C["Cleaning (Arabic ligatures)"] --> D["Chunking 800 / 150"] --> E["Embeddings bge-m3"] --> F[("ChromaDB")]
   end
-  subgraph En ligne
-    Q["Question"] --> L["Détection de langue"] --> G["Garde-fous : opinion, langue non prise en charge"]
-    G --> R["Découpage en sous-questions (si plusieurs volets)"]
-    R --> S["Recherche : 5 passages, dont au moins 2 de l'autre langue"]
-    F -. lit .-> S
-    S --> T{"Score >= 0,50 ?"}
-    T -- non --> X["Refus poli"]
-    T -- oui --> M["LLM Gemini (modèles de secours)"]
-    M --> U["Sources citées + phrase surlignée"]
+  subgraph Online
+    Q["Question"] --> L["Language detection"] --> G["Guardrails: opinion, unsupported language"]
+    G --> R["Split multi-part questions"]
+    R --> S["Retrieval: 5 passages, at least 2 from the other language"]
+    F -. read .-> S
+    S --> T{"Score >= 0.50 ?"}
+    T -- no --> X["Polite refusal"]
+    T -- yes --> M["Gemini LLM (model fallback)"]
+    M --> U["Cited sources + highlighted sentence"]
   end
 ```
 
-### Chaîne hors ligne (construction de l'index)
+**Offline (building the index).** PDFs are read page by page with PyMuPDF, cleaned (repeated headers removed, Arabic ligatures stored backwards by some PDFs repaired), cut into 800-character chunks with a 150-character overlap, embedded with `bge-m3` (1,024-dimension vectors) and stored in ChromaDB: 4,028 chunks from 1,293 pages.
 
-1. **Extraction** ([`ingest.py`](backend/src/ingest.py)) : texte de chaque page avec PyMuPDF, enrichi des métadonnées du registre [`data/sources.csv`](data/sources.csv) (thème, langue, organisme, lien).
-2. **Nettoyage** ([`cleaning.py`](backend/src/cleaning.py)) : suppression du bruit, et **réparation des ligatures arabes** enregistrées à l'envers par certains PDF, en prenant comme vocabulaire de référence le texte sain de la Constitution.
-3. **Découpage** ([`chunking.py`](backend/src/chunking.py)) : chunks de 800 caractères avec 150 de chevauchement, soit 4 028 chunks pour 1 293 pages.
-4. **Embeddings** ([`embeddings.py`](backend/src/embeddings.py)) : `BAAI/bge-m3` (vecteurs de 1 024 dimensions, multilingues), sur carte graphique en demi-précision si elle est disponible, sur processeur sinon.
-5. **Stockage** ([`vectorstore.py`](backend/src/vectorstore.py)) : ChromaDB persistant, similarité cosinus.
+**Online (one question).**
 
-### Chaîne en ligne (une question)
-
-1. **Langue et garde-fous** ([`language.py`](backend/src/language.py), [`guards.py`](backend/src/guards.py)) : détection de la langue, refus immédiat des demandes d'avis politique et des questions dans une langue non prise en charge (l'anglais). Aucun appel au LLM, donc aucun quota consommé.
-2. **Découpage de la question** ([`query_rewriter.py`](backend/src/query_rewriter.py)) : si la question semble porter sur plusieurs sujets, le LLM la scinde en questions autonomes, utilisées **seulement pour la recherche**. Appel limité à 8 s ; en cas de lenteur ou de panne, la recherche classique prend le relais.
-3. **Recherche** ([`retriever.py`](backend/src/retriever.py)) : les 5 meilleurs passages, avec un **minimum garanti de 2 passages de l'autre langue** : si les meilleurs passages sont tous dans la langue de la question, les meilleurs passages de l'autre langue prennent la place des derniers ; s'ils sont déjà nombreux, rien n'est plafonné. Pour les sous-questions, les résultats sont mélangés un à tour de rôle en conservant ce minimum.
-4. **Seuil de refus** : si aucun passage n'atteint un score de 0,50, l'assistant refuse sans appeler le LLM.
-5. **Génération** ([`generator.py`](backend/src/generator.py), [`prompts.py`](backend/src/prompts.py)) : appel REST à Gemini, avec essai automatique d'un autre modèle en cas de quota ou de panne. La consigne impose de ne répondre qu'avec les extraits, de les citer ([1], [2]…), de rester neutre et de traiter les extraits comme des données, pas comme des ordres. Elle demande aussi de lire attentivement les extraits écrits dans l'autre langue, et de répondre à la partie de la question qui trouve réponse (en disant ce qui manque) plutôt que de refuser en bloc.
-6. **Sources** ([`rag.py`](backend/src/rag.py), [`excerpt.py`](backend/src/excerpt.py)) : on ne garde que les passages cités. Pour chacun, on choisit **la phrase qui partage le plus de mots (et de nombres) avec la réponse et la question**, et l'interface la surligne. Quand aucun mot n'est commun (réponse en français citant un texte arabe), on ne devine pas : on montre le début du passage, sans surlignage. Si la phrase surlignée commence par « Ils », « Ce »…, la phrase précédente du même passage est montrée avant elle. Pour un PDF, le lien est complété par `#page=N` : le document s'ouvre à la page citée.
-
-### Technologies
-
-| Couche | Technologie |
-|---|---|
-| Extraction, nettoyage | PyMuPDF, expressions régulières, réparation des ligatures arabes |
-| Embeddings | `sentence-transformers`, `BAAI/bge-m3` (local) |
-| Base vectorielle | ChromaDB (persistante, cosinus) |
-| Génération | API Gemini (Google) appelée en REST avec la bibliothèque standard, liste de modèles de secours dans [`config.py`](backend/src/config.py) |
-| API | FastAPI, Pydantic, slowapi (10 requêtes par minute et par IP), CORS configurable |
-| Interface | React 19, Vite, Tailwind CSS 4, affichage de droite à gauche pour l'arabe |
-| Qualité | pytest (171 tests), GitHub Actions (backend, frontend, Docker), notebook d'analyse |
-| Déploiement | Docker (PyTorch en version processeur), docker compose |
-
-## Choix techniques et justifications
-
-Les chiffres viennent des fichiers de résultats ([`python -m evaluation.report`](backend/evaluation/report.py)).
-
-- **`bge-m3` plutôt que `multilingual-e5-base`.** Avec le même découpage (800/150) sur 17 documents, le hit rate@5 passe de 72 % (18/25) à 84 % (21/25). Le modèle est multilingue et gère mieux l'arabe.
-- **Découpage 800 / 150.** Avec `e5-base`, des chunks de 1 200 caractères (recouvrement 200) donnaient 76 % contre 72 % pour 800/150. Cette taille n'a pas été testée avec `bge-m3` : c'est une piste ouverte.
-- **Minimum de passages de l'autre langue.** Un modèle multilingue préfère les textes écrits dans la langue de la question, or de nombreuses lois n'existent qu'en arabe. Sur 35 documents, réserver 2 places sur 5 fait passer le hit rate@5 de 76 % (19/25) à 84 % (21/25) ; 3 places donnent le même résultat. Sur 17 documents avec `e5-base`, 2 places donnent 76 %, 3 places 80 %, contre 72 % sans réservation. **Correction après le jeu de réglage** : ces places formaient un plafond (3 passages de la langue de la question et exactement 2 de l'autre) et non un minimum, ce qui écartait un bon texte quand il n'était que le 3e meilleur de l'autre langue, et le mélange des sous-questions les perdait ; elles sont maintenant un minimum garanti (voir [les corrections](#corrections-apportées-et-test-final)).
-- **Découpage des questions à plusieurs volets.** Le vecteur d'une question à deux sujets est un mélange qui ressemble mal à chacun : les bons passages arrivaient loin dans le classement (rang médian 34 pour ces questions, voir l'[analyse exploratoire](#analyse-exploratoire)). Avec le découpage, les questions combinées passent de 2/5 à 4/5 et le hit rate@5 global de 84 % à 92 % (23/25). Les variantes essayées puis écartées (passer à 8 passages, limiter à 2 passages par document, ajouter la traduction de la question) ne corrigeaient pas les questions manquées ou en faisaient perdre une. Ce gain est indicatif : ces mêmes questions ont servi à diagnostiquer et à mesurer. **Sur le jeu de réglage (neuf), cet avantage n'apparaissait pas avant la correction du plafond** (recherche brute 30/35, système complet 28/35) ; sans le découpage, après correction du plafond, le jeu de départ tombe à 20/25 alors que le jeu de réglage ne change pas (31/35), donc le découpage est conservé.
-- **Seuil de refus bas (0,50) + deuxième filet par le LLM.** Le seuil évite les refus à tort (aucune des 60 questions du corpus des deux jeux n'est sous 0,50), et c'est surtout le LLM qui refuse les questions hors sujet : 15 refus corrects sur 15, alors que le seuil seul n'en arrêterait que 4 (voir l'[analyse exploratoire](#analyse-exploratoire)).
-- **Garde-fous avant le LLM.** Refuser un avis politique par des règles précises (français et arabe) est plus fiable, plus rapide et gratuit ; la consigne du LLM reste une deuxième ligne de défense.
-- **Gemini en REST avec modèles de secours.** Le palier gratuit est limité par modèle et par jour ; l'appel direct avec délai maximal est plus prévisible que le SDK, qui bloquait sans message clair.
-- **Calcul de l'index sur carte graphique** (demi-précision, indispensable pour tenir dans 4 Go) : 4 028 chunks en 1 603 s (environ 27 minutes) sur une NVIDIA GeForce GTX 1650. Sur processeur, le calcul de 2 049 chunks avec le modèle plus petit `e5-base` avait pris 2 125 s : les deux mesures ne portent pas sur le même modèle, elles montrent seulement l'ordre de grandeur.
-- **Pas de LangChain** : pour comprendre et pouvoir expliquer chaque étape, y compris quand elle échoue.
+1. The language is detected and two cases are refused at once, without using any LLM quota: requests for a political opinion and unsupported languages (English).
+2. If the question looks multi-part, an LLM splits it into up to 3 simple questions, **only for retrieval**. It never sees any passage, and the call is capped at 8 seconds.
+3. Retrieval returns the 5 closest chunks, with a **guaranteed minimum of 2 from the other language**: if the best chunks are all in the question's language, the best chunks of the other language replace the last ones; if the other language is already well represented, nothing is capped.
+4. If even the best chunk scores under 0.50, the assistant refuses without calling the LLM.
+5. Otherwise Gemini receives the question, the numbered passages and strict rules (use only the passages, cite them, stay neutral, read passages in the other language, answer the part of the question that can be answered). A list of fallback models handles the free-tier daily quotas.
+6. Only the passages actually cited are returned. For each one, the sentence sharing the most words and numbers with the answer is highlighted.
 
 ## Corpus
 
-**35 documents officiels** (20 en français, 15 en arabe), collectés entre le 18 et le 25 octobre 2026. Les 4 028 chunks se répartissent en 62 % de français et 38 % d'arabe.
+**35 official documents** (20 in French, 15 in Arabic) collected between 18 and 25 October 2026; 62 % of the chunks are French, 38 % Arabic.
 
-| Thème | Documents (FR / AR) | Contenu |
+| Theme | Documents (FR / AR) | Content |
 |---|---|---|
-| Constitution | 2 (1 / 1) | Constitution de 2011 |
-| Élections | 8 (2 / 6) | lois organiques 27-11 (Chambre des représentants, FR et AR), 28-11 (Chambre des conseillers) et 59-11 (collectivités territoriales) ; loi 57-11 sur les listes électorales (FR consolidée et AR) et loi 55-25 qui la modifie ; arrêté sur le site des listes électorales |
-| Partis politiques | 2 (0 / 2) | loi organique 29-11, décret sur le financement des partis |
-| Institutions | 11 (9 / 2) | lois organiques sur les préfectures et provinces (112-14), les communes (113-14), les régions (111-14), la loi de finances (130-13), la Cour constitutionnelle (066-13), le gouvernement (065-13), les commissions d'enquête (085-13), le CESE (128-12) ; lois sur l'instance de probité (46-19) et le médiateur (14-16) ; règlement intérieur de la Chambre des représentants |
-| Droits et participation | 12 (8 / 4) | pétitions (44-14), motions législatives (64-14), grève (97-15), langue amazighe (26-16) ; droit d'association et rassemblements publics (dahirs 1-58-376 et 1-58-377) ; accès à l'information (31-13), CNDH (76-15), Conseil de la jeunesse (89-15), autorité de la parité (79-14), presse et édition (88-13) ; guide du Parlement et du gouvernement ouvert |
+| Constitution | 2 (1 / 1) | Constitution of 2011 |
+| Elections | 8 (2 / 6) | organic laws on the two chambers and on local elections, electoral lists law and its amendment, decree on the electoral lists website |
+| Political parties | 2 (0 / 2) | organic law 29-11, decree on public funding |
+| Institutions | 11 (9 / 2) | organic laws on prefectures, communes, regions, the finance law, the Constitutional Court, the government, parliamentary inquiry committees, the CESE; laws on the integrity authority and the Mediator; rules of procedure of the House of Representatives |
+| Rights and participation | 12 (8 / 4) | petitions, legislative motions, strike, Amazigh language, associations, public assemblies, access to information, the CNDH, the youth council, the parity authority, press law, a guide on open government |
 
-Organismes : ministère de la Justice (portail Adala, 22 documents), Secrétariat général du gouvernement (6), Chambre des représentants (5), ministère de l'Intérieur (2).
+Sources: Ministry of Justice (Adala portal, 22 documents), General Secretariat of the Government (6), House of Representatives (5), Ministry of the Interior (2). The full register is in [`data/sources.csv`](data/sources.csv). **The PDFs are not redistributed** because the reuse conditions of the source websites are not specified.
 
-Le registre complet (fichier, thème, langue, organisme, lien d'origine, date) est dans [`data/sources.csv`](data/sources.csv). **Les PDF ne sont pas publiés dans ce dépôt** : les conditions de réutilisation des sites sources ne sont pas précisées. Chacun peut les retrouver avec les liens du registre.
+## Results
 
-## Évaluation
+The final system (35 documents, `bge-m3`, at least 2 passages of the other language, question splitting, corrected prompt) was measured on **three question sets, before and after a round of fixes**. Accuracy and faithfulness are rated by an LLM judge for all three sets so that "before" and "after" are comparable.
 
-### Méthode
+| Question set | System | Hit rate@5 | Correct refusals (off-topic) | Wrongful refusals | Accuracy (judge, 0–2) | Faithfulness (judge) |
+|---|---|---|---|---|---|---|
+| Starting set (30 questions) | before → after | 92 % → 84 % | 5/5 → 5/5 | 0 % → 0 % | 1.92 → 1.92 | 30/30 → 30/30 |
+| Tuning set (45 questions) | before → after | 80 % → **89 %** | 10/10 → 10/10 | 20 % → **3 %** | 1.40 → **1.57** | 44/45 → 45/45 |
+| **Final test set (36 questions)** | before → after | 89 % → 86 % | 8/8 → 8/8 | 18 % → **11 %** | 1.43 → **1.54** | 36/36 → 36/36 |
 
-- **Jeu de départ : 30 questions** ([`questions.csv`](backend/evaluation/questions.csv)), écrites par l'auteure : 15 simples, 5 combinées (deux textes nécessaires), 5 en arabe, et 5 hors corpus (dont un avis politique et des sujets proches mais absents). Elles ont servi à diagnostiquer et à régler le système.
-- **Jeu de réglage : 45 questions** ([`questions_set2.csv`](backend/evaluation/questions_set2.csv), généré par [`build_questions_set2.py`](backend/evaluation/build_questions_set2.py)) : 24 simples en français, 7 en arabe, 4 combinées, 10 hors corpus. Il vise chacun des 24 documents que le jeu de départ ignorait ; les deux jeux réunis couvrent **35 documents sur 35**. Il a été écrit à partir des textes **avant** de voir la moindre réponse du système, et n'a rien réglé jusqu'à sa première mesure ; ayant révélé des défauts, il a ensuite servi à régler les corrections, comme le jeu de départ.
-- **Jeu de test final : 36 questions** ([`questions_set3.csv`](backend/evaluation/questions_set3.csv), généré par [`build_questions_set3.py`](backend/evaluation/build_questions_set3.py)) : 28 sur le corpus et 8 hors corpus, dont 15 questions qui croisent volontairement la langue de la question et celle du texte (9 en français sur des textes arabes, 6 en arabe sur des textes français). Écrit avant toute correction, mesuré avec l'ancien système puis **une seule fois** avec le système corrigé : c'est le **test final**.
-- Chaque question a une réponse attendue, le ou les documents attendus, la page et un extrait, **retrouvés automatiquement dans les textes** (aucune page ni extrait n'est écrit à la main).
-- **Hit rate@5** : le ou les documents attendus figurent parmi les 5 passages retrouvés. Pour une question à deux textes, les deux doivent y être ; pour un texte disponible en deux langues, l'une ou l'autre version suffit.
-- **Refus correct** : sur les questions hors corpus, l'assistant refuse sans source inventée.
-- **Exactitude** (0, 1 ou 2) : 2 = correcte et complète, 1 = partielle, 0 = fausse, hors sujet ou refus à tort.
-- **Fidélité** (0 ou 1) : 0 seulement si la réponse contient une information absente des passages cités ; un ajout hors sujet mais présent dans les sources vaut 1.
-- La notation d'exactitude et de fidélité a été faite **à la main**, avec une page générée pour l'occasion ([`make_scoring_page.py`](backend/evaluation/make_scoring_page.py)) qui affiche la question, la réponse attendue, la réponse de l'assistant et les passages cités.
+The starting set and the tuning set were used to find and fix flaws; the **final test set** was written before any fix and measured once with the corrected system. A wrongful refusal is the assistant answering "not in my documents" when the answer exists.
 
-### Comparaison des configurations
+- **Wrongful refusals dropped**: 20 % → 3 % on the tuning set and 18 % → 11 % on the final test (5 → 3 of 28 questions).
+- **Judge-rated accuracy rose slightly**: 1.40 → 1.57 (tuning) and 1.43 → 1.54 (final test).
+- **No new invented answers**: all 23 off-topic questions are still refused.
+- **Retrieval did not improve reliably**: hit rate@5 went up on the tuning set, down by one question on the final test, and down on the starting set (the set the first version had been tuned on).
+- **A language gap remains.** Over the three sets, after the fixes: when the question and the text are in the **same language** (35 questions), 94 % of the right documents are found and 0 % of the answers are wrongful refusals; when the **languages differ** (28 questions), 82 % and 14 %. On the final test alone, wrongful refusals on cross-language questions stayed at 3 of 15, so that part of the improvement is established on the tuning sets but not confirmed by the final test.
 
-| Fichier de résultats | Configuration | Hit rate@5 | Latence moyenne |
-|---|---|---|---|
-| `results_17docs_A.csv` | 17 documents, e5-base, 800/150 | 72 % (18/25) | 3,1 s |
-| `results_17docs_A_slots2.csv` | idem + 2 places pour l'autre langue | 76 % (19/25) | — |
-| `results_17docs_A_slots3.csv` | idem + 3 places | 80 % (20/25) | — |
-| `results_17docs_B.csv` | 17 documents, e5-base, 1 200/200 | 76 % (19/25) | — |
-| `results_17docs_C.csv` | 17 documents, bge-m3, 800/150 | 84 % (21/25) | — |
-| `results_35docs_slots0.csv` | 35 documents, bge-m3, sans réservation | 76 % (19/25) | — |
-| `results_35docs_slots2.csv` | 35 documents, bge-m3, 2 places | 84 % (21/25) | — |
-| `results_35docs_slots3.csv` | 35 documents, bge-m3, 3 places | 84 % (21/25) | — |
-| `results_35docs_rewrite.csv` | 35 documents, bge-m3, 2 places + découpage | **92 % (23/25)** | — |
-| `results_set2.csv` | même configuration, **autre jeu de questions** (jeu de réglage, avant corrections) | 80 % (28/35) | 3,1 s |
-| `results_set3_before.csv` | ancien système, jeu de test final | 89 % (25/28) | 4,8 s |
-| `results_set1_after.csv` | **système corrigé**, jeu de départ | 84 % (21/25) | 3,6 s |
-| `results_set2_after.csv` | **système corrigé**, jeu de réglage | 89 % (31/35) | 2,5 s |
-| `results_set3_after.csv` | **système corrigé**, jeu de test final | 86 % (24/28) | 3,0 s |
+All sets are small (28 to 35 in-corpus questions each): a difference of one or two questions is within noise.
 
-Les lignes `results_set*` portent sur d'autres jeux de questions (jeu de réglage : 35 questions du corpus ; jeu de test final : 28) ou sur le système corrigé : elles ne sont pas comparables terme à terme aux lignes du jeu de départ. La latence et les notes ne sont mesurées que pour les configurations où le LLM a été appelé. Détail de l'ancien système sur le jeu de départ ([`results.csv`](backend/evaluation/results.csv), notes manuelles) :
+![Before and after the fixes, on the three question sets](backend/notebooks/figures/11_avant_apres_corrections.png)
 
-| Type de question | Hit rate@5 |
+![Before and after the fixes, by language of the question and of the text](backend/notebooks/figures/12_avant_apres_par_langue.png)
+
+## Evaluation method
+
+- **Starting set** (30 questions written at the beginning): 25 in-corpus (simple, combined, Arabic) and 5 off-topic. It tuned the first version and is the one scored by hand (average accuracy 1.92 / 2 for the first version).
+- **Tuning set** (45 questions): aimed at the 24 documents the starting set ignored, written from the texts before seeing any answer. It first served as a fresh test, then to find and fix the flaws.
+- **Final test set** (36 questions): written before any fix, 15 of its 28 in-corpus questions deliberately cross the language of the question and of the text.
+- Together, the three sets cover **all 35 documents**. Each question comes with an expected answer, the expected document(s), the page and the excerpt, **found automatically in the texts**.
+- **Metrics**: hit rate@5 (the right document is among the 5 retrieved passages), correct refusal, wrongful refusal, accuracy (0 = wrong or refused, 1 = partial, 2 = correct and complete), faithfulness (0 only if the answer contains something absent from the cited passages), latency.
+- **LLM judge and Cohen's kappa.** A free-tier Gemini model rates the same answers with the same grid. Before I revised one of my own scores after seeing a disagreement, agreement was 24/25 with **kappa 0.65**; after the revision it is 25/25 (kappa 1.00) but no longer independent of the judge, so 0.65 is the figure to quote. **28 deliberately bad answers** (another question's answer, a changed number, an invented sentence, a wrongful refusal) were all caught (28/28), although these are blatant defects.
+
+The full evaluation (configuration comparisons, error analysis, excerpt study) is in the [French README](README.fr.md#évaluation).
+
+## Exploratory analysis
+
+The notebook [`01_analyse_exploratoire.ipynb`](backend/notebooks/01_analyse_exploratoire.ipynb) (outputs included, 12 figures) examines the data before judging the chatbot.
+
+- **Healthy extraction**: median chunk length around 700 characters, 2 chunks under 200 characters, no "glued" Arabic letters, 8 exact duplicates out of 4,028.
+- **Language structures the embedding space more than topic**: silhouette 0.071 by language against 0.022 by theme (0.072 on the Constitution alone, where both languages say the same thing). Both values are low.
+- **The top-5 passages follow the question's language**: 84 % are French for a French question (the corpus is 62 % French) and 80 % are Arabic for an Arabic question (38 % of the corpus). This is why a minimum of passages from the other language is guaranteed.
+- **No refusal threshold separates the questions**: the lowest in-corpus question scores 0.530 and the highest off-topic one 0.650, so refusal relies on a low threshold (0.50) combined with the LLM's own refusal.
+
+![t-SNE map of the 4,028 chunks, by language then by theme](backend/notebooks/figures/03_carte_tsne.png)
+
+## The web interface
+
+| French answer, source unfolded | Arabic answer (right-to-left layout) |
 |---|---|
-| Simples | 14/15 |
-| Combinées (deux textes) | 4/5 |
-| En arabe | 5/5 |
-| Hors corpus (refus correct) | 5/5 |
-
-### Jeu de réglage : un test sur tout le corpus (système avant corrections)
-
-Le premier jeu ne visait que 11 documents. Le deuxième (45 questions, voir la [méthode](#méthode)) a été lancé **une seule fois**, avec le système tel qu'il était alors, sans aucun réglage ensuite (les corrections viennent après, voir plus bas). Résultats ([`results_set2.csv`](backend/evaluation/results_set2.csv), notes du juge dans [`judge_results_set2.csv`](backend/evaluation/judge_results_set2.csv)) :
-
-| Type de question | Hit rate@5 (système complet) | Hit rate@5 (recherche brute) |
-|---|---|---|
-| Simples, en français (24) | 21/24 | 21/24 |
-| En arabe (7) | 6/7 | 7/7 |
-| Combinées, deux textes (4) | 1/4 | 2/4 |
-| **Total (35)** | **28/35** | **30/35** |
-| Hors corpus : refus correct (10) | 10/10 | |
-
-*Recherche brute* = les 5 meilleurs passages sans réservation de langue ni découpage des questions (calculée dans le [notebook](backend/notebooks/01_analyse_exploratoire.ipynb)).
-
-**Ce que ce jeu révèle :**
-
-1. **La fiabilité dépend de la langue du texte par rapport à celle de la question.** Hit rate@5 selon la langue de la question et celle du texte attendu :
-
-   | Question | Texte | Hit rate@5 (système) |
-   |---|---|---|
-   | français | français | 15/16 |
-   | arabe | arabe | 4/4 |
-   | français | **arabe** | **6/10** |
-   | arabe | français | 2/3 |
-   | français | textes en français et en arabe | 1/2 |
-
-   Quand la langue de la question et celle du texte sont les mêmes, le bon document est retrouvé 19 fois sur 20 ; quand elles diffèrent, 8 fois sur 13.
-
-   ![Hit rate selon la langue de la question et du texte](backend/notebooks/figures/10_hit_langue_question_texte.png)
-
-2. **7 refus à tort sur 35 questions du corpus (20 %)** : l'assistant répond « pas dans mes documents » alors que la réponse existe. Cinq de ces sept refus portent sur des textes arabes interrogés en français. **Dans deux cas (questions 4 et 8), le bon document était pourtant dans les 5 passages** : c'est la génération qui a refusé, pas la recherche. Chacun de ces 7 refus reçoit la note 0 du juge.
-3. **L'avantage de la réservation de langue et du découpage n'est pas confirmé** : 28/35 pour le système complet, 30/35 pour la recherche brute. Sur les 4 questions combinées, la recherche brute en retrouve 2 contre 1.
-4. **Deux « ratés » sont discutables** (questions 3 et 35) : la réponse donnée est juste (carte nationale d'identité ; initiative du Roi ou du tiers des membres d'une chambre) mais elle vient d'un autre texte que celui désigné comme attendu, qui contient la même règle.
-5. **Notes du juge LLM** (pas de notation manuelle sur ce jeu) : exactitude moyenne **1,40 / 2** (21 notes à 2, 7 à 1, 7 à 0), soit 1,50 pour les questions simples, 1,43 pour celles en arabe et 0,75 pour les combinées ; **1,75 sur les 28 questions où le système a répondu**, car les 7 refus à tort valent 0. Fidélité 44/45 : une réponse (question 35) mélange les commissions d'enquête parlementaires et celles d'autres conseils. Les notes inférieures à 2 sur des réponses données viennent surtout d'omissions (un élément de la réponse attendue manque), pas d'erreurs.
-6. **Latence** : 3,1 s en moyenne (médiane 1,9 s, maximum 31,3 s), contre 10,0 s sur le jeu de départ un autre jour avec la même configuration : la charge du palier gratuit de Gemini domine.
-
-**Limites de ce jeu :** les notes viennent d'un juge LLM qui n'a pas été validé à la main sur ce jeu, et qui est plus sévère sur la complétude que ne le serait un lecteur humain.
-
-### Corrections apportées, et test final
-
-**Protocole.** Corriger un système en regardant ses erreurs sur un jeu de questions, puis le mesurer sur ce même jeu, donne des chiffres trop flatteurs. Le jeu de départ et le jeu de réglage ont donc servi à **régler** les corrections ; le jeu de test final (36 questions, écrit avant toute correction) a été mesuré avec l'ancien système, **mis de côté**, puis mesuré **une seule fois** avec le système corrigé, sans plus rien modifier entre les deux. Les expériences intermédiaires sont conservées dans [`backend/evaluation/experiments/`](backend/evaluation/experiments/).
-
-**Les corrections**, trouvées en analysant les 7 refus à tort et les ratés du jeu de réglage :
-
-1. **Les places « réservées » à l'autre langue étaient un plafond.** Pour une question en arabe, la recherche prenait exactement 3 passages arabes et 2 français : si le bon texte français était le 3e meilleur passage français, il était écarté (cas de la question sur le CESE). Le mélange des sous-questions perdait aussi ces passages (cas des conseillers communaux et régionaux). C'est maintenant un **minimum garanti** ([`retriever.py`](backend/src/retriever.py)). Sur les jeux de départ et de réglage : jeu de réglage de 28/35 à 31/35 (+3 questions, celles qu'on attendait), jeu de départ de 23/25 à 22/25 (la question sur la grève : les 5 passages viennent désormais tous de la loi sur la grève, qui répond au sujet mais n'est pas le document désigné).
-2. **La consigne du LLM était trop stricte** ([`prompts.py`](backend/src/prompts.py)) : elle disait de refuser dès que les extraits « ne contiennent pas la réponse », sans rien dire des textes dans l'autre langue ni des réponses partielles. Elle demande maintenant de lire attentivement les extraits dans l'autre langue, de répondre à la partie de la question qui trouve réponse et de ne refuser que si aucun extrait n'aide, même en partie. Test sur les jeux de départ et de réglage : 6 des 7 refus à tort deviennent des réponses (la septième est un échec de la recherche), et les 11 questions hors corpus transmises au LLM sont toutes toujours refusées.
-3. **Côté sources** : les PDF s'ouvrent à la page citée (`#page=N`), les puces illisibles des PDF deviennent « • », et la phrase précédente est montrée quand la phrase surlignée commence par « Ils », « Ce »… (cosmétique, non mesurée).
-
-**Une piste écartée.** Traduire chaque question dans l'autre langue avant la recherche aurait demandé un appel au LLM de plus par question, sur un quota gratuit déjà limité : je ne l'ai pas essayée.
-
-**Résultats par jeu**, voir le tableau en tête du README : refus à tort 20 % → 3 % (jeu de réglage) et 18 % → 11 % (test final), exactitude du juge 1,40 → 1,57 et 1,43 → 1,54, hit rate@5 en hausse sur le jeu de réglage mais pas sur le test final.
-
-**Résultats selon la langue de la question et celle du texte** (88 questions du corpus des trois jeux, [notebook](backend/notebooks/01_analyse_exploratoire.ipynb), section 9) :
-
-| Question et texte | Questions | Hit rate@5 avant → après | Refus à tort avant → après |
-|---|---|---|---|
-| Même langue | 35 | 34 → 33 | 2 → 0 |
-| Langues différentes | 28 | 21 → 23 | 9 → 4 |
-| Textes en français et en arabe | 25 | 21 → 20 | 1 → 0 |
-
-Sur les questions qui croisent les langues, les refus à tort passent de 9 à 4 sur 28 et le hit rate@5 de 75 % à 82 % ; sur les questions de même langue, 0 refus à tort et 94 % de hit rate. **Mais sur le test final seul** (15 questions qui croisent les langues), ces refus restent à 3 et le hit rate à 13/15 : le gain sur ces questions est établi sur les jeux de départ et de réglage, pas confirmé par le test final. La baisse des refus à tort du test final (5 → 3) vient surtout des questions de même langue ou des textes dans les deux langues.
-
-![Avant et après les corrections, sur les trois jeux](backend/notebooks/figures/11_avant_apres_corrections.png)
-
-![Avant et après les corrections, selon la langue de la question et du texte](backend/notebooks/figures/12_avant_apres_par_langue.png)
-
-**Bilan honnête.** Les corrections font ce qu'on attendait sur les refus à tort (réduits sur les trois jeux, dont le test final) sans produire d'invention, et améliorent légèrement l'exactitude notée par le juge. Elles n'améliorent pas la **recherche** de façon fiable. Deux écarts persistent : les questions qui croisent les langues sont un peu moins bien réussies (hit rate@5 de 82 % contre 94 %, refus à tort de 14 % contre 0 %), et celles qui demandent deux textes (0 sur 2 au test final).
-
-### Analyse des erreurs (jeu de départ)
-
-- **Deux documents attendus non retrouvés** dans les 5 passages (questions 12 et 19). La question 19 (pétition) est une question en français dont la réponse se trouve dans une loi uniquement en arabe. Dans les deux cas l'assistant a donné une réponse notée juste avec d'autres passages : le hit rate mesure la recherche, pas la qualité de la réponse.
-- **Deux exactitudes à 1** : la question 21 (l'attendu est détaillé, la réponse ne donne que le total de 395 membres) et la question 25 (la réponse ne mentionne pas la loi organique).
-- **Une réponse trop bavarde** (question 16) : elle ajoute des informations hors sujet sur l'inscription des étrangers, mais présentes dans la source (fidélité 1, signalé en commentaire).
-- **Latence** : 10,0 s en moyenne, avec un maximum de 28,7 s. Un appel supplémentaire est ajouté pour les questions à plusieurs volets, et le palier gratuit de Gemini est lent ou saturé par moments.
-
-### LLM juge et coefficient kappa de Cohen
-
-Pour mesurer la fiabilité de la notation, un **LLM juge gratuit** (modèles Gemini du palier gratuit, température 0) note les mêmes réponses avec la même grille ([`llm_judge.py`](backend/evaluation/llm_judge.py)). Le kappa de Cohen, simple et pondéré, est calculé à la main ([`cohen_kappa`](backend/evaluation/llm_judge.py), testé sur un exemple de manuel).
-
-| | Accord (exactitude, 25 questions) | Kappa de Cohen |
-|---|---|---|
-| **Avant** révision de la question 25 | 24/25 (96 %) | **0,65** |
-| Après révision | 25/25 (100 %) | 1,00 |
-
-- **Un seul désaccord** au départ : la question 25 (note de l'auteure : 2, juge : 1, car la réponse omet la loi organique). L'auteure a ensuite ramené sa note à 1. **Le chiffre « après » n'est donc plus indépendant du juge** ; le chiffre « avant » se retrouve avec la version de `results.csv` du commit `3d16ee0`.
-- **Fidélité** : accord 30/30, mais le kappa n'est pas défini, car les deux notateurs donnent toujours 1.
-- **Le paradoxe du kappa** : quand presque toutes les notes sont identiques, un juge qui répondrait 2 à tout serait aussi d'accord avec l'auteure, sans savoir repérer une erreur. D'où des **contrôles négatifs** ([`judge_controls.py`](backend/evaluation/judge_controls.py)) : 28 mauvaises réponses fabriquées à partir des vraies réponses, que le juge doit attraper.
-
-| Défaut fabriqué | Attendu | Attrapées |
-|---|---|---|
-| Réponse d'une autre question | exactitude < 2 | 8/8 |
-| Chiffre modifié | exactitude < 2 ou fidélité 0 | 4/4 |
-| Phrase inventée ajoutée | fidélité 0 | 8/8 |
-| Refus à tort | exactitude 0 | 8/8 |
-| **Total** | | **28/28** |
-
-Limites : ce sont des défauts volontairement grossiers (aucune erreur subtile n'est testée), seules 4 réponses contenaient un chiffre, le juge et le générateur sont de la même famille de modèles, et les 28 contrôles ont été notés par le modèle le plus léger (le quota du modèle principal était épuisé ce jour-là). Le juge a aussi noté le jeu de réglage (voir plus haut) ; il n'y a pas été comparé à une notation manuelle.
-
-### Analyse exploratoire
-
-Le notebook [`01_analyse_exploratoire.ipynb`](backend/notebooks/01_analyse_exploratoire.ipynb) (résultats déjà affichés, 12 figures dans [`backend/notebooks/figures/`](backend/notebooks/figures/)) examine les données avant de juger le chatbot. Il recalcule les 19/25 du fichier `results_35docs_slots0.csv`, ce qui valide sa méthode.
-
-- **Corpus déséquilibré** : la langue dominante change selon le thème (élections surtout en arabe, institutions surtout en français), et les partis politiques n'ont que 2 documents, tous en arabe.
-- **Extraction saine** : chunks de 697 caractères en médiane en français et 717 en arabe, 2 chunks de moins de 200 caractères, 0,0 % de lettres arabes « collées », 8 doublons exacts sur 4 028.
-- **La langue structure l'espace des vecteurs plus que le thème.** Coefficient de silhouette : 0,071 par langue contre 0,022 par thème (0,072 sur la seule Constitution, où les deux langues disent la même chose). Les deux valeurs sont faibles.
-
-  ![Carte t-SNE des 4 028 chunks, par langue puis par thème](backend/notebooks/figures/03_carte_tsne.png)
-
-- **Les 5 meilleurs passages suivent la langue de la question** : 84 % sont en français pour une question française (le corpus l'est à 62 %), 80 % sont en arabe pour une question arabe (le corpus l'est à 38 %). C'est ce qui justifie de garantir un minimum de passages de l'autre langue.
-
-  ![Part des 5 passages dans la langue de la question](backend/notebooks/figures/05_part_meme_langue.png)
-
-- **Seuil de refus** : sur le jeu de départ, les questions du corpus ont un meilleur score d'au moins 0,598 et les questions hors corpus d'au plus 0,591 : un seuil vers 0,595 semblait tout séparer, mais avec un écart de 0,007 sur 5 questions seulement. **Le jeu de réglage (10 questions hors corpus de plus, écrites sans regarder les scores) infirme cette idée** : sur les 75 questions des deux jeux, la plus faible du corpus obtient 0,530 et la plus forte hors corpus 0,650, donc aucun seuil ne sépare tout. Avec 0,595, 4 questions du corpus seraient refusées à tort et 1 question hors corpus passerait ; avec le seuil actuel (0,50), aucune question du corpus n'est refusée mais le seuil seul n'arrête que 4 des 15 questions hors corpus (le LLM refuse les 15). Le seuil n'a pas été changé.
-
-  ![Meilleur score de chaque question, sur les deux jeux, et seuils de refus](backend/notebooks/figures/09_scores_seuil_deux_jeux.png)
-
-- **Rang du bon document** : rang médian 1 pour les questions simples et arabes, 34 pour les questions combinées. Les ratés des questions simples viennent de lois spécialisées (grève, presse, préfectures) classées avant la Constitution : les textes sont pertinents, ce n'est pas une recherche absurde.
-
-- **Couverture des questions** : le jeu de départ ne visait que 11 documents sur 35 (19 questions du corpus sur 25 pour la Constitution) ; le jeu de réglage vise les 24 autres, si bien que les deux jeux réunis couvrent les 35 documents.
-
-  ![Documents visés par au moins une question, par thème](backend/notebooks/figures/08_couverture_deux_jeux.png)
-
-### Extraits surlignés
-
-Avant, l'extrait d'une source était le début du passage cité (200 caractères), qui ne contenait pas toujours la réponse. Mesure sur les 25 questions du corpus (53 sources citées, [`excerpts_check.csv`](backend/evaluation/excerpts_check.csv)) : part des mots de la réponse présents dans le passage qui se retrouvent dans l'extrait montré, pour les 41 sources écrites dans la langue de la réponse.
-
-| Extrait montré | Couverture moyenne |
-|---|---|
-| Ancien : début du passage, 200 caractères | 33 % |
-| Début du passage, 300 caractères (même longueur que le nouveau) | 51 % |
-| **Phrase choisie** | **79 %** |
-
-Cette mesure est en partie circulaire (la phrase est choisie avec les mêmes mots que ceux qu'on compte) ; elle a été complétée par la lecture d'exemples, pas par un jugement humain systématique. Les 12 autres sources citent un texte dans l'autre langue que la réponse : aucun mot en commun, donc pas de surlignage.
-
-### Limites de l'évaluation
-
-- **Réglage et test.** Les jeux de départ et de réglage ont servi à régler les corrections ; seul le **jeu de test final** (28 questions du corpus, 8 hors corpus) est un test indépendant, mesuré une seule fois. Ses chiffres sont peu précis : la baisse du hit rate@5 de 89 % à 86 % correspond à **une** question.
-- **Jeu de test final volontairement difficile sur la langue** : 15 de ses 28 questions du corpus croisent la langue de la question et celle du texte ; ses taux ne reflètent donc pas l'usage réel.
-- **Notation.** Le jeu de départ a été noté à la main par une seule personne ; les jeux de départ et de réglage et de test final le sont par un **juge LLM** (de la même famille que le générateur), non validé à la main sur ces jeux. Les exactitudes « avant / après » du tableau sont toutes celles du juge.
-- **Variabilité.** Le découpage des questions dépend d'un LLM (deux passages du même système peuvent différer d'une question) et la latence dépend de la charge du palier gratuit de Gemini (de 2,5 s à 10,0 s en moyenne selon le jour).
-
-## Installation et lancement
-
-Prérequis : Python 3.11, Node.js (version LTS), une clé d'API Gemini ([Google AI Studio](https://aistudio.google.com/apikey)). Une carte graphique NVIDIA accélère le calcul de l'index mais n'est pas nécessaire.
-
-```bash
-# 1. Environnement Python
-python -m venv venv
-venv\Scripts\activate            # Windows ; sous Linux/macOS : source venv/bin/activate
-pip install -r backend/requirements.txt
-
-# 2. Clé d'API : copier le modèle puis remplir LLM_API_KEY (ce fichier n'est jamais publié)
-copy backend\.env.example backend\.env      # Linux/macOS : cp backend/.env.example backend/.env
-
-# 3. Construire l'index (les 35 PDF doivent être dans data/raw/, voir ci-dessous)
-cd backend
-python -m src.make_chunks        # extraction, nettoyage, découpage
-python -m src.build_index        # embeddings + ChromaDB (environ 27 min sur une GTX 1650 ; plus long sur processeur)
-
-# 4. Tester en terminal, puis lancer l'API
-python -m src.ask "Qui choisit le chef du gouvernement ?"
-uvicorn main:app --reload        # documentation interactive : http://localhost:8000/docs
-
-# 5. Interface (dans un autre terminal, depuis la racine du projet)
-cd frontend
-copy .env.example .env           # Linux/macOS : cp .env.example .env
-npm install
-npm run dev                      # http://localhost:5173
-```
-
-**Récupérer les PDF.** Le dossier `data/raw/` n'est pas publié. Téléchargez chaque document depuis le lien de la colonne `url` de [`data/sources.csv`](data/sources.csv) et enregistrez-le dans `data/raw/` sous le nom de la colonne `fichier`.
-
-**Variables d'environnement** (`backend/.env`) :
-
-| Variable | Rôle |
-|---|---|
-| `LLM_API_KEY` | clé d'API Gemini (obligatoire pour générer des réponses) |
-| `ALLOWED_ORIGINS` | adresses du frontend autorisées par le CORS, séparées par des virgules (défaut : `http://localhost:5173`) |
-
-Le frontend lit l'adresse de l'API dans `frontend/.env` (`VITE_API_URL`, défaut `http://localhost:8000`).
-
-### Avec Docker
-
-```bash
-docker compose up --build        # l'API sera sur http://localhost:8000/docs
-```
-
-L'image contient le code, le modèle d'embeddings et l'index (construit au préalable en local). Le fichier `backend/.env` n'est jamais copié dans l'image : il est lu au démarrage. Le frontend se lance séparément (`npm run dev`).
-
-> Sous Windows 11 avec « Smart App Control », certaines versions récentes de bibliothèques (PyTorch, grpcio, pandas, scikit-learn, rpds-py) peuvent être bloquées. Les versions qui fonctionnent sont fixées dans [`backend/requirements.txt`](backend/requirements.txt).
-
-### Tests et évaluation
-
-Toutes les commandes se lancent depuis le dossier `backend`.
-
-```bash
-python -m pytest                                     # 171 tests, sans clé d'API ni modèle
-python -m evaluation.run_eval --label A              # pose les 30 questions du jeu de départ (consomme du quota Gemini)
-python -m evaluation.build_questions_set2            # régénère le jeu de réglage (45 questions) depuis les textes
-python -m evaluation.run_eval --questions questions_set2.csv --output results_set2.csv --label set2   # jeu de réglage
-python -m evaluation.run_eval --no-llm               # teste seulement la recherche, sans quota
-python -m evaluation.run_eval --summary              # chiffres à partir de results.csv
-python -m evaluation.report                          # tableau de tous les fichiers de résultats
-python -m evaluation.compare_runs                    # tableau avant / après les corrections, sur les trois jeux
-python -m evaluation.build_questions_set3            # régénère le jeu de test final (36 questions)
-
-python -m evaluation.make_scoring_page               # page HTML de notation manuelle
-python -m evaluation.merge_notes                     # copie les notes téléchargées dans results.csv
-python -m evaluation.llm_judge                       # LLM juge, puis --report pour kappa et matrice
-python -m evaluation.llm_judge --results results_set2.csv --output judge_results_set2.csv   # juge sur le jeu de réglage ; --summary pour le résumé
-python -m evaluation.judge_controls                  # contrôles négatifs, puis --report
-python -m evaluation.check_excerpts                  # compare l'ancien et le nouvel extrait, puis --report
-```
-
-Pour le notebook d'analyse : `pip install -r backend/requirements-dev.txt`, puis ouvrez [`backend/notebooks/01_analyse_exploratoire.ipynb`](backend/notebooks/01_analyse_exploratoire.ipynb) dans VS Code ou Jupyter (il faut l'index local pour le réexécuter ; les résultats déjà affichés restent lisibles sans).
+| ![French answer with the answering sentence highlighted in the source](screenshots/answer_fr.png) | ![Arabic answer with the answering sentence highlighted in the source](screenshots/answer_ar.png) |
+| **Neutral refusal to an opinion question** | **On a phone** |
+| ![Polite neutral refusal](screenshots/neutral_refusal.png) | ![Interface on a phone](screenshots/mobile.png) |
+
+The interface is a React application (Vite + Tailwind CSS). It contains no AI logic: it sends the question to the API and displays the answer, the sources and a permanent disclaimer, in French or Arabic.
 
 ## API
 
-| Méthode | Route | Rôle |
+| Method | Route | Purpose |
 |---|---|---|
-| `GET` | `/health` | l'API tourne et l'index contient des chunks |
-| `POST` | `/chat` | répond à une question avec ses sources |
+| `GET` | `/health` | the API is up and the index contains chunks |
+| `POST` | `/chat` | answers a question with its sources |
 
-Corps de `/chat` : `question` (1 à 500 caractères) et, facultatif, `theme` pour limiter la recherche à un thème. Exemple de réponse réelle (extrait abrégé) :
+The body of `/chat` is a `question` (1 to 500 characters) and an optional `theme` to limit the search. Errors: `422` for an empty or too long question, `429` above 10 requests per minute per IP address, `503` with a readable message when the LLM is unavailable. A real response (excerpt shortened):
 
 ```json
 {
@@ -454,60 +212,68 @@ Corps de `/chat` : `question` (1 à 500 caractères) et, facultatif, `theme` pou
 }
 ```
 
-- `found` vaut `false` pour un refus poli (hors corpus ou avis politique) ; la liste `sources` est alors vide.
-- `highlight_start` / `highlight_end` encadrent, dans `excerpt`, la phrase qui répond ; ils valent `null` quand aucune phrase ne se détache.
-- **Erreurs** : `422` pour une question vide ou trop longue, `429` au-delà de 10 requêtes par minute et par adresse IP, `503` avec un message lisible quand le LLM est indisponible (quota ou panne).
+`found` is `false` for a polite refusal, and `highlight_start` / `highlight_end` frame the answering sentence inside `excerpt` (`null` when none stands out).
 
-## Structure du dépôt
+## Project structure
 
 ```
 .
 ├── backend/
-│   ├── main.py                  API FastAPI (/health, /chat)
-│   ├── schemas.py               formats d'entrée et de sortie (Pydantic)
-│   ├── src/                     pipeline RAG : ingest, cleaning, chunking, embeddings, vectorstore,
+│   ├── main.py                  FastAPI API (/health, /chat)
+│   ├── schemas.py               input and output formats (Pydantic)
+│   ├── src/                     RAG pipeline: ingest, cleaning, chunking, embeddings, vectorstore,
 │   │                            retriever, query_rewriter, generator, prompts, guards, excerpt, rag
-│   ├── evaluation/              3 jeux de questions, résultats, juge LLM, contrôles négatifs, rapports,
-│   │                            comparaison avant/après, expériences (experiments/)
-│   ├── notebooks/               analyse exploratoire et figures
-│   ├── tests/                   171 tests pytest
-│   ├── Dockerfile
-│   ├── requirements.txt         bibliothèques de l'application
-│   └── requirements-dev.txt     bibliothèques du notebook
-├── frontend/                    interface React (Vite, Tailwind)
-├── data/sources.csv             registre des 35 documents (les PDF ne sont pas publiés)
-├── docs/demo/                   démo en GIF et en vidéo
+│   ├── evaluation/              3 question sets, results, LLM judge, negative controls, before/after comparison
+│   ├── notebooks/               exploratory analysis and figures
+│   ├── tests/                   171 pytest tests
+│   └── Dockerfile
+├── frontend/                    React interface (Vite, Tailwind)
+├── data/sources.csv             register of the 35 documents (the PDFs are not published)
+├── docs/demo/                   demo as GIF and video
+├── screenshots/                 interface screenshots
 ├── docker-compose.yml
-└── .github/workflows/ci.yml     intégration continue
+└── .github/workflows/ci.yml     continuous integration
 ```
 
-## Qualité, tests et intégration continue
+## Quality
 
-- **171 tests pytest** couvrant l'extraction, le nettoyage (dont la réparation de l'arabe), le découpage, la base vectorielle, le découpage des questions, le choix de l'extrait, les garde-fous, le générateur, l'orchestration, l'API et les outils d'évaluation (kappa, juge, contrôles, fusion des notes). Ils n'appellent ni le vrai LLM ni le vrai modèle d'embeddings : ces éléments sont remplacés par de fausses fonctions.
-- **GitHub Actions** ([`ci.yml`](.github/workflows/ci.yml)) lance à chaque envoi : les tests du backend, l'analyse (`lint`) et la construction du frontend, puis la construction de l'image Docker, son démarrage et un appel à `/health`.
-- **Aucun secret dans Git** : la clé d'API vit dans `backend/.env` (ignoré par Git) ; la CI utilise une clé factice.
-- **Code lisible** : une fonction par étape, commentaires en français, noms de variables et de fonctions en anglais.
+- **171 pytest tests** covering extraction, cleaning (including Arabic repair), chunking, the vector store, question splitting, excerpt selection, guardrails, the generator, orchestration, the API and the evaluation tools. They never call the real LLM or the real embedding model: both are replaced by fake functions.
+- **GitHub Actions** runs on every push: backend tests, frontend lint and build, then a Docker image build with a start-up check on `/health`.
+- **No secret in Git**: the API key lives in an ignored `.env` file, and the CI uses a dummy key.
+- **Readable code**: one function per step, comments in French, variable and function names in English.
 
-## Limites et pistes d'amélioration
+## Limitations
 
-**Limites**
+- **Performance gap by language of the text.** The assistant answers in the question's language whatever the language of the text (24 of the 28 cross-language questions get an answer), with somewhat lower reliability: wrongful refusals are 14 % (4 of 28) when the languages differ against 0 % (0 of 35) when they are the same, and hit rate@5 is 82 % against 94 %. This is expected from a multilingual embedding model, which first brings together texts in the question's language.
+- **Questions that need two texts** are rarely solved (0 of 2 on the final test, 2 of 4 on the tuning set).
+- **Refusal threshold**: no threshold separates in-corpus from off-topic questions (0.530 against 0.650), so refusal relies on a low threshold combined with the LLM's refusal.
+- **Link to the Constitution**: "Open the document" leads to the home page of the text (a web page with one address for the whole document), not to the cited article.
+- **Small question sets**: one or two questions of difference is within noise, and the tuning and final-test scores come from an LLM judge, not from a person.
+- **Corpus**: mostly legal texts, harder to read than teaching guides; only 2 documents on political parties, both in Arabic; some texts may have been amended since collection; some Arabic PDFs keep extraction defects that cleaning does not repair.
+- **Free LLM tier**: quotas per model and per day, one reason the project is not hosted publicly.
+- **Scope**: no conversation memory, and English is not supported (polite refusal).
 
-- **Écart de performance selon la langue du texte** : le système répond dans la langue de la question quelle que soit la langue du texte (24 des 28 questions qui croisent les langues obtiennent une réponse), avec un peu moins de fiabilité : les refus à tort sont de 14 % (4 sur 28) quand la langue de la question et celle du texte diffèrent, contre 0 % (0 sur 35) quand elles sont les mêmes, et le hit rate@5 est de 82 % contre 94 %. C'est un comportement attendu d'un modèle d'embeddings multilingue, qui rapproche d'abord les textes de la langue de la question.
-- **Questions qui demandent deux textes** : réussies 0 fois sur 2 au test final et 2 fois sur 4 au jeu de réglage ; le découpage des questions aide mais la recherche ne retrouve pas toujours le deuxième texte.
-- **Seuil de refus** : aucun seuil ne sépare les questions des jeux de départ et de réglage (0,530 contre 0,650) ; le refus repose donc sur un seuil bas combiné au refus par le LLM.
-- **Lien vers la Constitution** : « Ouvrir le document » mène à la page d'accueil du texte (page web, une seule adresse par document), pas à l'article cité.
-- **Corpus** : surtout des textes de loi, plus difficiles à lire que des guides pédagogiques ; seulement 2 documents sur les partis, tous deux en arabe ; certains textes ont pu être modifiés depuis la collecte. Certains PDF arabes gardent des défauts d'extraction que le nettoyage ne répare pas tous.
-- **Quota gratuit du LLM** : limité par modèle et par jour ; l'API essaie plusieurs modèles à la suite, mais une utilisation soutenue demanderait un forfait payant.
-- **Périmètre** : pas de mémoire de conversation, et l'anglais n'est pas pris en charge (refus poli).
+## Ideas for improvement
 
-**Pistes d'amélioration**
+- Translate or rephrase the question into the other language before retrieval (one more LLM call per question, not tried), or compare sentence-level vectors, then measure on a **fourth question set** (the final test set must no longer be used for tuning).
+- Add a reranker and a keyword search alongside the vector search, and try 1,200-character chunks with `bge-m3` (only tried with `e5-base`).
+- Have a person score a sample of the tuning-set and final-test answers by hand, to validate the LLM judge on those sets.
+- Add conversation memory and English support.
 
-- Traduire ou reformuler la question dans l'autre langue avant la recherche (un appel de plus au LLM par question, non essayé), ou comparer des vecteurs de phrases, puis mesurer sur un **quatrième jeu** de questions : le jeu de test final ne doit plus servir à régler.
-- Ajouter un ré-ordonnancement des résultats (reranker) et une recherche par mots-clés en complément ; tester des chunks de 1 200 caractères avec `bge-m3` (testés seulement avec `e5-base`).
-- Faire noter à la main un échantillon des réponses des jeux de départ et de réglage et de test final, pour valider le juge LLM sur ces jeux.
+## Tech stack
 
-## Confidentialité, avertissement et sources
+Python 3.11, PyMuPDF, sentence-transformers (`BAAI/bge-m3`), ChromaDB, Gemini API (REST), FastAPI, Pydantic, slowapi, React, Vite, Tailwind CSS, Docker, GitHub Actions, pytest, pandas, scikit-learn, matplotlib, Jupyter.
 
-Les réponses sont **indicatives**, tirées de textes officiels, et peuvent être périmées : vérifiez auprès des institutions compétentes. Cet assistant ne donne aucun conseil juridique personnalisé et **aucune opinion politique**. Le texte des questions n'est jamais enregistré dans les journaux de l'API.
+## Privacy and disclaimer
 
-Sources : ministère de la Justice (portail Adala), Secrétariat général du gouvernement, Chambre des représentants, ministère de l'Intérieur (portail des listes électorales). Les conditions de réutilisation de ces sites ne sont pas précisées : c'est pourquoi les documents ne sont pas redistribués ici.
+Answers are **indicative**, drawn from official texts, and may be out of date: check with the competent institutions. The assistant gives no personalised legal advice and **no political opinion**. The text of the questions is never written to the API logs.
+
+Sources: Ministry of Justice (Adala portal), General Secretariat of the Government, House of Representatives, Ministry of the Interior (electoral lists portal). The reuse conditions of these websites are not specified, which is why the documents are not redistributed here.
+
+## Author
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/salmahanabal"><b>Salma Hanabal</b></a><br><sub>@salmahanabal</sub></td>
+  </tr>
+</table>
