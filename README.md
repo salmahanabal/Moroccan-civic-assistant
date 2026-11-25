@@ -43,9 +43,11 @@
 - [Corpus](#corpus)
 - [Results](#results)
 - [Evaluation method](#evaluation-method)
+- [Detailed evaluation](#detailed-evaluation)
 - [Exploratory analysis](#exploratory-analysis)
 - [The web interface](#the-web-interface)
 - [API](#api)
+- [Getting started](#getting-started)
 - [Project structure](#project-structure)
 - [Quality](#quality)
 - [Limitations](#limitations)
@@ -62,7 +64,7 @@ This project is a **retrieval-augmented generation (RAG)** system, built by hand
 
 The project also documents how well it works: three question sets, a hand-scored evaluation, an LLM judge validated with Cohen's kappa, an exploratory analysis of the embeddings, and a list of measured limits.
 
-It is a **presentation repository**: code, evaluation and documentation are public, and setup instructions are intentionally not provided.
+It is a portfolio repository: code, evaluation and documentation are public. To run it yourself, see [Getting started](#getting-started): the PDFs and the index are not published, so you rebuild them locally.
 
 ## Demo
 
@@ -160,7 +162,90 @@ All sets are small (28 to 35 in-corpus questions each): a difference of one or t
 - **Metrics**: hit rate@5 (the right document is among the 5 retrieved passages), correct refusal, wrongful refusal, accuracy (0 = wrong or refused, 1 = partial, 2 = correct and complete), faithfulness (0 only if the answer contains something absent from the cited passages), latency.
 - **LLM judge and Cohen's kappa.** A free-tier Gemini model rates the same answers with the same grid. Before I revised one of my own scores after seeing a disagreement, agreement was 24/25 with **kappa 0.65**; after the revision it is 25/25 (kappa 1.00) but no longer independent of the judge, so 0.65 is the figure to quote. **28 deliberately bad answers** (another question's answer, a changed number, an invented sentence, a wrongful refusal) were all caught (28/28), although these are blatant defects.
 
-The full evaluation (configuration comparisons, error analysis, excerpt study) is in the [French README](README.fr.md#évaluation).
+### Detailed evaluation
+
+This section gives the details behind the table above. The French README has the same content with a few extra tables ([Évaluation](README.fr.md#évaluation)).
+
+**Retrieval configurations** (hit rate@5 on the 25 in-corpus questions of the starting set; files in [`backend/evaluation/`](backend/evaluation/)):
+
+| Configuration | Hit rate@5 |
+|---|---|
+| 17 documents, e5-base, chunks 800/150 | 72 % (18/25) |
+| same + 2 slots for the other language | 76 % (19/25) |
+| same + 3 slots | 80 % (20/25) |
+| 17 documents, e5-base, chunks 1,200/200 | 76 % (19/25) |
+| 17 documents, `bge-m3`, 800/150 | 84 % (21/25) |
+| 35 documents, `bge-m3`, no reserved slots | 76 % (19/25) |
+| 35 documents, `bge-m3`, 2 slots | 84 % (21/25) |
+| 35 documents, `bge-m3`, 3 slots | 84 % (21/25) |
+| 35 documents, `bge-m3`, 2 slots + question splitting | **92 % (23/25)** |
+
+`bge-m3` was kept over `e5-base`, with 2 reserved slots and question splitting. These rows are on the starting set the system was tuned on, so they are not an independent measure.
+
+**What the tuning set revealed** (45 questions, run once on the system before any fix):
+
+- **Reliability depends on the language of the question versus the language of the text.** When both are the same, the right document was found 19 times out of 20; when they differ, 8 times out of 13 (a French question on an Arabic-only text: 6 of 10).
+- **7 wrongful refusals on 35 in-corpus questions (20 %).** Five of them were French questions on Arabic texts. In two cases the right document was among the 5 passages, so it was the generation that refused, not the retrieval.
+- **The benefit of language slots and question splitting was not confirmed**: 28/35 for the full system against 30/35 for the raw top-5 search.
+- **Judge-rated accuracy was 1.40 / 2** (1.75 on the 28 questions that got an answer). Faithfulness was 44/45.
+
+**The fixes** (found by analysing those 7 refusals and the misses):
+
+1. The "reserved" slots for the other language acted as a **cap**: a question in Arabic took exactly 3 Arabic and 2 French passages, so a relevant third French passage was dropped. It is now a **guaranteed minimum**.
+2. The LLM prompt was **too strict**: it said to refuse whenever the excerpts did not contain the answer, and said nothing about passages in the other language or partial answers. It now asks the model to read excerpts in the other language carefully, answer the part of the question that can be answered, and refuse only when no excerpt helps. On the starting and tuning sets, 6 of the 7 wrongful refusals became answers, and the 11 off-topic questions that reached the LLM were all still refused.
+3. Sources open the PDF at the cited page, unreadable bullets are replaced, and the previous sentence is shown when the highlighted one starts with "They", "This", and so on (cosmetic, not measured).
+
+**Protocol.** Fixing a system by looking at its errors on a question set and then measuring it on the same set gives flattering numbers. The starting and tuning sets were used to **tune** the fixes. The final test set (36 questions) was written before any fix, measured with the old system, set aside, then measured **once** with the corrected system, with nothing changed in between. Intermediate experiments are kept in [`backend/evaluation/experiments/`](backend/evaluation/experiments/). Translating each question into the other language before retrieval was not tried: it needs one more LLM call per question on a free quota that is already tight.
+
+**Results by language** (88 in-corpus questions over the three sets, before → after the fixes):
+
+| Question and text | Questions | Hit rate@5 | Wrongful refusals |
+|---|---|---|---|
+| Same language | 35 | 34 → 33 | 2 → 0 |
+| Different languages | 28 | 21 → 23 | 9 → 4 |
+| Texts in both languages | 25 | 21 → 20 | 1 → 0 |
+
+On the final test alone (15 cross-language questions), wrongful refusals stay at 3 and hit rate@5 at 13/15: the gain on those questions is established on the starting and tuning sets, **not confirmed by the final test**.
+
+**Honest summary.** The fixes do what was expected on wrongful refusals (lower on all three sets, final test included) without producing invented answers, and slightly raise the judge's accuracy. They do **not** reliably improve retrieval. Two gaps remain: cross-language questions are somewhat less successful (hit rate@5 82 % against 94 %, wrongful refusals 14 % against 0 %), and questions that need two texts are rarely solved (0 of 2 on the final test).
+
+**LLM judge and Cohen's kappa.** A free-tier Gemini model (temperature 0) rates the same answers with the same grid ([`llm_judge.py`](backend/evaluation/llm_judge.py)); Cohen's kappa is computed by hand and tested on a textbook example.
+
+| | Agreement (accuracy, 25 questions) | Cohen's kappa |
+|---|---|---|
+| **Before** I revised my score for question 25 | 24/25 (96 %) | **0.65** |
+| After the revision | 25/25 (100 %) | 1.00 |
+
+- The single disagreement was question 25 (my score 2, judge 1 because the answer omits the organic law). I then lowered my score to 1, so **the "after" figure is no longer independent of the judge**; quote 0.65.
+- Faithfulness: agreement 30/30, but kappa is undefined because both raters always give 1.
+- **Kappa paradox**: when almost all scores are equal, a judge that answered "2" to everything would also agree with me without being able to spot an error. Hence **negative controls** ([`judge_controls.py`](backend/evaluation/judge_controls.py)): 28 bad answers built from real ones, which the judge must catch.
+
+| Fabricated defect | Expected | Caught |
+|---|---|---|
+| Answer of another question | accuracy < 2 | 8/8 |
+| Changed number | accuracy < 2 or faithfulness 0 | 4/4 |
+| Invented sentence added | faithfulness 0 | 8/8 |
+| Wrongful refusal | accuracy 0 | 8/8 |
+| **Total** | | **28/28** |
+
+These are deliberately blatant defects (no subtle error is tested), only 4 answers contained a number, the judge and the generator are from the same model family, and the 28 controls were scored by the lightest model because the main model's quota was exhausted that day.
+
+**Highlighted excerpts.** An excerpt used to be the first 200 characters of the cited passage, which did not always contain the answer. Share of the answer's words present in the passage that also appear in the excerpt shown (41 sources written in the answer's language):
+
+| Excerpt shown | Mean coverage |
+|---|---|
+| Old: start of the passage, 200 characters | 33 % |
+| Start of the passage, 300 characters (same length as the new one) | 51 % |
+| **Chosen sentence** | **79 %** |
+
+This measure is partly circular (the sentence is chosen using the same words that are counted) and was completed by reading examples, not by a systematic human judgment.
+
+**Limits of the evaluation.**
+
+- Only the final test set (28 in-corpus and 8 off-topic questions) is an independent test, measured once. Its numbers are imprecise: the drop in hit rate@5 from 89 % to 86 % is **one** question.
+- The final test set is deliberately hard on language: 15 of its 28 in-corpus questions cross the language of the question and of the text, so its rates do not reflect real use.
+- The starting set was scored by hand by one person. The tuning and final test sets are scored by an LLM judge of the same family as the generator, not validated by hand on those sets. All "before / after" accuracies in the table are the judge's.
+- Question splitting depends on an LLM (two runs can differ on a question) and latency depends on the free tier's load (from 2.5 s to 10 s on average depending on the day).
 
 ## Exploratory analysis
 
@@ -213,6 +298,73 @@ The body of `/chat` is a `question` (1 to 500 characters) and an optional `theme
 ```
 
 `found` is `false` for a polite refusal, and `highlight_start` / `highlight_end` frame the answering sentence inside `excerpt` (`null` when none stands out).
+
+## Getting started
+
+The repository contains the code, the evaluation and the document register, but **not the 35 PDFs** (the reuse conditions of the source websites are not specified) **nor the vector index**. You rebuild both locally, which is the only part that takes some time.
+
+**You need:** Python 3.11 (the version used by the CI and Docker), Node.js 20.19 or newer (the CI uses 24), about 3 GB of free disk space (PyTorch and the `bge-m3` model), and a free [Gemini API key](https://aistudio.google.com/apikey) for the chat itself. The tests need neither the key nor the model.
+
+### 1. Backend
+
+```bash
+git clone https://github.com/salmahanabal/Moroccan-civic-assistant.git
+cd Moroccan-civic-assistant/backend
+
+python -m venv venv
+# Windows (PowerShell):  venv\Scripts\Activate.ps1
+# macOS / Linux:         source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+`requirements.txt` pins `torch==2.7.1`. On a machine without an NVIDIA GPU you can save several GB by installing the CPU build first, as the CI does: `pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu`, then the line above.
+
+Create the settings file and put your key in it:
+
+```bash
+cp .env.example .env        # Windows: copy .env.example .env
+# then edit .env and set LLM_API_KEY=<your Gemini key>
+```
+
+### 2. Corpus and index
+
+1. Download the documents listed in [`data/sources.csv`](data/sources.csv) (column `url`) and save each one as `data/raw/<name in the column fichier>`, for example `data/raw/constitution_2011_fr.pdf`. Some sources are web pages that link to the PDF.
+2. From `backend/`, cut the texts into chunks, then build the index. The first run downloads the embedding model (several hundred MB) and computing 4,028 vectors takes a few minutes on a CPU:
+
+```bash
+python -m src.make_chunks      # writes data/processed/chunks.jsonl
+python -m src.build_index      # writes backend/chroma_db/
+```
+
+The index depends on the exact files, so the figures of the evaluation are only reproduced with the same 35 documents. If a website has since updated a text, the numbers can differ slightly.
+
+### 3. Run the API
+
+```bash
+uvicorn main:app --reload
+```
+
+Open http://localhost:8000/docs to try `/health` and `/chat`.
+
+### 4. Run the interface
+
+In a second terminal:
+
+```bash
+cd frontend
+cp .env.example .env        # Windows: copy .env.example .env  (VITE_API_URL=http://localhost:8000)
+npm ci
+npm run dev
+```
+
+Open http://localhost:5173. `ALLOWED_ORIGINS` in `backend/.env` already allows this address.
+
+### 5. Optional
+
+- **Tests** (from `backend/`): `python -m pytest -q`. They use fake LLM and embedding functions. `requirements-dev.txt` is only needed for the notebook.
+- **Docker** (from the repository root, after building the index, because the image copies it): `docker compose up --build`, then http://localhost:8000/docs. The key is read from `backend/.env`.
+- **Re-run the evaluation** (from `backend/`, needs the key and the index): `python -m evaluation.run_eval --questions questions_set3.csv --output results_set3_new.csv --label set3`, then `python -m evaluation.run_eval --summary`. The options of each script are described at the top of its file.
 
 ## Project structure
 

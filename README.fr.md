@@ -16,7 +16,7 @@
 - **Strictement neutre** : l'assistant explique ce que disent les textes, jamais pour qui voter, et il dit « je ne sais pas » quand la réponse n'est pas dans les documents.
 - **Pipeline RAG écrit à la main**, sans LangChain, une fonction par étape (extraction, nettoyage, découpage, embeddings `bge-m3`, ChromaDB, génération avec Gemini).
 - **Évaluation chiffrée et honnête** : trois jeux de questions qui couvrent les 35 documents, dont un test final jamais utilisé pour régler le système ; un juge LLM validé par un coefficient kappa ; des limites mesurées et documentées. Voir [les résultats](#résultats-en-un-coup-dœil).
-- **Dépôt de présentation** : le code, l'évaluation et la documentation sont publics ; les instructions d'installation et de lancement ne sont volontairement pas fournies.
+- **Reproductible en local** : le code, l'évaluation et la documentation sont publics ; les PDF et l'index ne sont pas publiés et se reconstruisent (voir [Installation et lancement](#installation-et-lancement)).
 
 Projet de portfolio en data science / IA. Auteure : [@salmahanabal](https://github.com/salmahanabal).
 
@@ -32,6 +32,7 @@ Projet de portfolio en data science / IA. Auteure : [@salmahanabal](https://gith
 - [Corpus](#corpus)
 - [Évaluation](#évaluation)
 - [API](#api)
+- [Installation et lancement](#installation-et-lancement)
 - [Structure du dépôt](#structure-du-dépôt)
 - [Qualité, tests et intégration continue](#qualité-tests-et-intégration-continue)
 - [Limites et pistes d'amélioration](#limites-et-pistes-damélioration)
@@ -393,6 +394,73 @@ Corps de `/chat` : `question` (1 à 500 caractères) et, facultatif, `theme` pou
 - `found` vaut `false` pour un refus poli (hors corpus ou avis politique) ; la liste `sources` est alors vide.
 - `highlight_start` / `highlight_end` encadrent, dans `excerpt`, la phrase qui répond ; ils valent `null` quand aucune phrase ne se détache.
 - **Erreurs** : `422` pour une question vide ou trop longue, `429` au-delà de 10 requêtes par minute et par adresse IP, `503` avec un message lisible quand le LLM est indisponible (quota ou panne).
+
+## Installation et lancement
+
+Le dépôt contient le code, l'évaluation et le registre des documents, mais **ni les 35 PDF** (les conditions de réutilisation des sites sources ne sont pas précisées) **ni l'index vectoriel**. On les reconstruit en local, c'est la seule étape un peu longue.
+
+**Il faut :** Python 3.11 (la version de la CI et de Docker), Node.js 20.19 ou plus (la CI utilise 24), environ 3 Go d'espace disque (PyTorch et le modèle `bge-m3`), et une [clé d'API Gemini](https://aistudio.google.com/apikey) gratuite pour le chat. Les tests n'ont besoin ni de la clé ni du modèle.
+
+### 1. Backend
+
+```bash
+git clone https://github.com/salmahanabal/Moroccan-civic-assistant.git
+cd Moroccan-civic-assistant/backend
+
+python -m venv venv
+# Windows (PowerShell) :  venv\Scripts\Activate.ps1
+# macOS / Linux :         source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+`requirements.txt` fixe `torch==2.7.1`. Sans carte graphique NVIDIA, on peut économiser plusieurs Go en installant d'abord la version CPU, comme la CI : `pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu`, puis la ligne ci-dessus.
+
+Créer le fichier de réglages et y mettre sa clé :
+
+```bash
+cp .env.example .env        # Windows : copy .env.example .env
+# puis éditer .env et renseigner LLM_API_KEY=<votre clé Gemini>
+```
+
+### 2. Corpus et index
+
+1. Télécharger les documents listés dans [`data/sources.csv`](data/sources.csv) (colonne `url`) et enregistrer chacun sous `data/raw/<nom de la colonne fichier>`, par exemple `data/raw/constitution_2011_fr.pdf`. Certaines sources sont des pages web qui renvoient vers le PDF.
+2. Depuis `backend/`, découper les textes en chunks puis construire l'index. Le premier lancement télécharge le modèle d'embeddings (plusieurs centaines de Mo) et le calcul des 4 028 vecteurs prend quelques minutes sur CPU :
+
+```bash
+python -m src.make_chunks      # écrit data/processed/chunks.jsonl
+python -m src.build_index      # écrit backend/chroma_db/
+```
+
+L'index dépend des fichiers exacts : les chiffres de l'évaluation ne se retrouvent qu'avec les mêmes 35 documents. Si un site a mis à jour un texte depuis, les résultats peuvent différer légèrement.
+
+### 3. Lancer l'API
+
+```bash
+uvicorn main:app --reload
+```
+
+Ouvrir http://localhost:8000/docs pour essayer `/health` et `/chat`.
+
+### 4. Lancer l'interface
+
+Dans un second terminal :
+
+```bash
+cd frontend
+cp .env.example .env        # Windows : copy .env.example .env  (VITE_API_URL=http://localhost:8000)
+npm ci
+npm run dev
+```
+
+Ouvrir http://localhost:5173. `ALLOWED_ORIGINS` dans `backend/.env` autorise déjà cette adresse.
+
+### 5. En option
+
+- **Tests** (depuis `backend/`) : `python -m pytest -q` ; ils utilisent de fausses fonctions pour le LLM et les embeddings. `requirements-dev.txt` ne sert qu'au notebook.
+- **Docker** (depuis la racine, après avoir construit l'index, car l'image le copie) : `docker compose up --build`, puis http://localhost:8000/docs. La clé est lue dans `backend/.env`.
+- **Relancer l'évaluation** (depuis `backend/`, nécessite la clé et l'index) : `python -m evaluation.run_eval --questions questions_set3.csv --output results_set3_new.csv --label set3`, puis `python -m evaluation.run_eval --summary`. Les options de chaque script sont décrites en tête de son fichier.
 
 ## Structure du dépôt
 
